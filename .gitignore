@@ -1,0 +1,45 @@
+# --- Python/Django ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+*.pot
+*.mo
+*.sqlite3
+db.sqlite3
+instance/
+media/
+staticfiles/
+.env
+*.env
+*.secret
+celerybeat-schedule
+
+# --- Virtualenv ---
+.venv/
+venv/
+ENV/
+
+# --- OS/IDE ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# --- Node/Frontend ---
+node_modules/
+dist/
+build/
+coverage/
+.npm/
+.pnpm-store/
+.yarn/
+.next/
+.nuxt/
+out/
+
+# --- Others ---
+*.cache/
+*.tmp

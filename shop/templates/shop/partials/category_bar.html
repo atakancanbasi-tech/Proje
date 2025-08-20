@@ -1,0 +1,11 @@
+<div class="cat-bar border-top border-bottom">
+  <div class="container d-flex gap-2 flex-nowrap overflow-auto py-2">
+    <a href="{% url 'shop:product_list' %}" class="chip">Tümü</a>
+    <a href="{% url 'shop:product_list' %}?q=mumluk" class="chip">Mumluk</a>
+    <a href="{% url 'shop:product_list' %}?q=biblo" class="chip">Beton Biblo</a>
+    <a href="{% url 'shop:product_list' %}?q=saksı" class="chip">Saksı</a>
+    <a href="{% url 'shop:product_list' %}?q=tealight" class="chip">Tealight</a>
+    <a href="{% url 'shop:product_list' %}?sort=-created" class="chip">Yeni</a>
+    <a href="{% url 'shop:product_list' %}?q=indirim" class="chip">İndirim</a>
+  </div>
+</div>

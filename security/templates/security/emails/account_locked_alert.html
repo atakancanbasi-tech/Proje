@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Hesap Kilitleme Uyarısı</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #dc3545; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f8f9fa; }
+        .alert { background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; margin: 15px 0; border-radius: 5px; color: #721c24; }
+        .details { background-color: white; padding: 15px; margin: 15px 0; border-radius: 5px; border: 1px solid #dee2e6; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        .unlock-info { background-color: #d1ecf1; border: 1px solid #bee5eb; padding: 15px; margin: 15px 0; border-radius: 5px; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Hesap Kilitlendi</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Merhaba {{ user.first_name|default:user.username }},</h2>
+            
+            <div class="alert">
+                <strong>Hesabınız güvenlik nedeniyle kilitlenmiştir!</strong>
+            </div>
+            
+            <p>Hesabınızda çoklu başarısız giriş denemesi tespit edildiği için güvenlik önlemi olarak hesabınız geçici olarak kilitlenmiştir.</p>
+            
+            <div class="details">
+                <h3>Kilitleme Detayları:</h3>
+                <ul>
+                    <li><strong>Kilitleme Nedeni:</strong> {{ details.reason|default:"Çoklu başarısız giriş denemesi" }}</li>
+                    <li><strong>Başarısız Deneme Sayısı:</strong> {{ details.attempts|default:"Bilinmiyor" }}</li>
+                    <li><strong>IP Adresi:</strong> {{ details.ip_address|default:"Bilinmiyor" }}</li>
+                    <li><strong>Kilitleme Zamanı:</strong> {{ timestamp|date:"d.m.Y H:i" }}</li>
+                    {% if details.unlock_time %}
+                    <li><strong>Kilit Açılma Zamanı:</strong> {{ details.unlock_time|date:"d.m.Y H:i" }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            {% if details.unlock_time %}
+            <div class="unlock-info">
+                <h3>📅 Kilit Açılma Bilgisi</h3>
+                <p>Hesabınızın kilidi <strong>{{ details.unlock_time|date:"d.m.Y H:i" }}</strong> tarihinde otomatik olarak açılacaktır.</p>
+            </div>
+            {% endif %}
+            
+            <h3>Ne Yapmalısınız?</h3>
+            <ul>
+                <li>Eğer bu giriş denemeleri sizin değilse, kilit açıldıktan sonra derhal şifrenizi değiştirin</li>
+                <li>İki faktörlü kimlik doğrulamayı etkinleştirin</li>
+                <li>Güçlü ve benzersiz bir şifre kullanın</li>
+                <li>Hesabınızı düzenli olarak kontrol edin</li>
+                <li>Şüpheli aktivite fark ederseniz bizimle iletişime geçin</li>
+            </ul>
+            
+            <div class="alert">
+                <strong>Önemli:</strong> Bu kilitleme işlemi güvenliğiniz için yapılmıştır. Eğer bu giriş denemeleri sizin tarafınızdan yapıldıysa, lütfen şifrenizi kontrol edin.
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayın.</p>
+            <p>Acil durumlar için destek ekibimizle iletişime geçebilirsiniz.</p>
+            <p>© {{ timestamp.year }} Güvenlik Sistemi</p>
+        </div>
+    </div>
+</body>
+</html>

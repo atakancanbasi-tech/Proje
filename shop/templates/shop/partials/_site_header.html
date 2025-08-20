@@ -1,0 +1,165 @@
+{# Wayfair-style Premium Navigation #}
+<div class="promo-bar-enhanced">
+  <div class="container">
+    <div class="promo-slider">
+      <div class="promo-track">
+        <div class="promo-item">
+          <i class="bi bi-truck me-2"></i>
+          <span>500₺ üzeri <strong>ücretsiz kargo</strong></span>
+        </div>
+        <div class="promo-item">
+          <i class="bi bi-arrow-clockwise me-2"></i>
+          <span><strong>30 gün</strong> koşulsuz iade</span>
+        </div>
+        <div class="promo-item">
+          <i class="bi bi-shield-check me-2"></i>
+          <span><strong>Güvenli ödeme</strong> garantisi</span>
+        </div>
+        <div class="promo-item">
+          <i class="bi bi-headset me-2"></i>
+          <span><strong>7/24</strong> müşteri desteği</span>
+        </div>
+        <div class="promo-item">
+          <i class="bi bi-gift me-2"></i>
+          <span>İlk siparişte <strong>%10 indirim</strong></span>
+        </div>
+        <div class="promo-item">
+          <i class="bi bi-star-fill me-2"></i>
+          <span><strong>El yapımı</strong> premium kalite</span>
+        </div>
+        <!-- Duplicate for seamless loop -->
+        <div class="promo-item">
+          <i class="bi bi-truck me-2"></i>
+          <span>500₺ üzeri <strong>ücretsiz kargo</strong></span>
+        </div>
+        <div class="promo-item">
+          <i class="bi bi-arrow-clockwise me-2"></i>
+          <span><strong>30 gün</strong> koşulsuz iade</span>
+        </div>
+        <div class="promo-item">
+          <i class="bi bi-shield-check me-2"></i>
+          <span><strong>Güvenli ödeme</strong> garantisi</span>
+        </div>
+        <div class="promo-item">
+          <i class="bi bi-headset me-2"></i>
+          <span><strong>7/24</strong> müşteri desteği</span>
+        </div>
+        <div class="promo-item">
+          <i class="bi bi-gift me-2"></i>
+          <span>İlk siparişte <strong>%10 indirim</strong></span>
+        </div>
+        <div class="promo-item">
+          <i class="bi bi-star-fill me-2"></i>
+          <span><strong>El yapımı</strong> premium kalite</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header class="wayfair-header bg-white border-bottom">
+  <div class="container">
+    <div class="row align-items-center py-2">
+      <!-- Logo -->
+      <div class="col-auto">
+        <a href="{% url 'shop:product_list' %}" class="brand text-decoration-none d-flex align-items-center">
+          <span class="logo me-2" aria-hidden="true"></span>
+          <span class="fs-3 fw-bold text-dark">Morenavera</span>
+        </a>
+      </div>
+      
+      <!-- Categories Dropdown -->
+      <div class="col-auto">
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-grid-3x3-gap me-2"></i>
+            Kategoriler
+          </button>
+          <ul class="dropdown-menu dropdown-menu-lg">
+            <li><a class="dropdown-item fw-semibold" href="{% url 'shop:product_list' %}">Tüm Ürünler</a></li>
+            <li><hr class="dropdown-divider"></li>
+            {% if categories %}
+              {% for c in categories %}
+                <li><a class="dropdown-item" href="{% url 'shop:product_list' %}?category={{ c.slug }}">{{ c.name }}</a></li>
+              {% endfor %}
+            {% else %}
+              <li><a class="dropdown-item" href="{% url 'shop:product_list' %}?category=saksılar">Saksılar</a></li>
+              <li><a class="dropdown-item" href="{% url 'shop:product_list' %}?category=mumluklar">Mumluklar</a></li>
+              <li><a class="dropdown-item" href="{% url 'shop:product_list' %}?category=biblolar">Biblolar</a></li>
+              <li><a class="dropdown-item" href="{% url 'shop:product_list' %}?category=dekoratif">Dekoratif Objeler</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Enhanced Search Bar -->
+      <div class="col">
+        <form class="wayfair-search position-relative" action="{% url 'shop:product_list' %}" method="get" role="search">
+          <div class="input-group input-group-lg">
+            <input class="form-control border-2" type="search" name="q" value="{{ request.GET.q }}" placeholder="Masa, saksı, beton biblo, mumluk..." aria-label="Ürün ara">
+            <button class="btn btn-primary px-4" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- User Actions -->
+      <div class="col-auto">
+        <nav class="wayfair-actions d-flex align-items-center gap-3">
+          <!-- User Account -->
+          <div class="dropdown">
+            <button class="btn btn-link text-dark text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle fs-5 me-1"></i>
+              {% if user.is_authenticated %}
+                {{ user.first_name|default:user.username }}
+              {% else %}
+                Hesabım
+              {% endif %}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              {% if user.is_authenticated %}
+                <li><a class="dropdown-item" href="{% url 'shop:my_orders' %}"><i class="bi bi-box-seam me-2"></i>Siparişlerim</a></li>
+                <li><a class="dropdown-item" href="{% url 'shop:wishlist' %}"><i class="bi bi-heart me-2"></i>Favorilerim</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'security:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Çıkış Yap</a></li>
+              {% else %}
+                <li><a class="dropdown-item" href="{% url 'security:login' %}"><i class="bi bi-box-arrow-in-right me-2"></i>Giriş Yap</a></li>
+                <li><a class="dropdown-item" href="{% url 'security:register' %}"><i class="bi bi-person-plus me-2"></i>Üye Ol</a></li>
+              {% endif %}
+            </ul>
+          </div>
+          
+          <!-- Wishlist -->
+          <a class="btn btn-link text-dark text-decoration-none position-relative" href="{% url 'shop:wishlist' %}" aria-label="Favoriler">
+            <i class="bi bi-heart fs-5"></i>
+            <span class="d-none d-md-inline ms-1">Favoriler</span>
+          </a>
+          
+          <!-- Shopping Cart -->
+          <a class="btn btn-link text-dark text-decoration-none position-relative" href="{% url 'shop:cart_detail' %}" aria-label="Sepet">
+            <i class="bi bi-bag fs-5"></i>
+            <span class="d-none d-md-inline ms-1">Sepet</span>
+            {% if request.session.cart_count %}
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ request.session.cart_count }}</span>
+            {% endif %}
+          </a>
+        </nav>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Secondary Navigation Bar -->
+  <div class="wayfair-secondary-nav bg-light border-top">
+    <div class="container">
+      <div class="d-flex align-items-center py-2 gap-4">
+        <a class="nav-link-secondary" href="{% url 'shop:product_list' %}?sort=new">Yeni Gelenler</a>
+        <a class="nav-link-secondary" href="{% url 'shop:product_list' %}?sort=popular">En Popüler</a>
+        <a class="nav-link-secondary" href="{% url 'shop:product_list' %}?sort=price_low">En Uygun Fiyat</a>
+        <a class="nav-link-secondary" href="{% url 'shop:product_list' %}?tag=indirim">İndirimler</a>
+        <a class="nav-link-secondary" href="{% url 'shop:product_list' %}?tag=set">Setler</a>
+        <a class="nav-link-secondary" href="{% url 'shop:product_list' %}?tag=hediye">Hediye Fikirleri</a>
+      </div>
+    </div>
+  </div>
+</header>

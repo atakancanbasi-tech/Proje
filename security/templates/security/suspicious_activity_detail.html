@@ -1,0 +1,361 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Şüpheli Aktivite Detayı - {{ activity.id }}{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4 security-page">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-shield-alt text-danger"></i> Şüpheli Aktivite Detayı</h2>
+                    <p class="text-muted mb-0">ID: {{ activity.id }} | {{ activity.created_at|date:"d.m.Y H:i:s" }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'security:suspicious_activities' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Geri Dön
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Ana Bilgiler -->
+        <div class="col-lg-8">
+            <div class="card detail-card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Aktivite Bilgileri</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Aktivite Türü</h6>
+                            <p class="mb-3">{{ activity.get_activity_type_display }}</p>
+                            
+                            <h6>Kullanıcı</h6>
+                            <p class="mb-3">
+                                {% if activity.user %}
+                                    <i class="fas fa-user"></i> {{ activity.user.username }}
+                                    <br><small class="text-muted">{{ activity.user.email }}</small>
+                                {% else %}
+                                    <i class="fas fa-user-slash"></i> Anonim Kullanıcı
+                                {% endif %}
+                            </p>
+                            
+                            <h6>IP Adresi</h6>
+                            <p class="mb-3">
+                                <i class="fas fa-globe"></i> {{ activity.ip_address }}
+                            </p>
+                            
+                            <h6>Konum Bilgisi</h6>
+                            <p class="mb-3">
+                                {% if activity.location_info %}
+                                    {% if activity.location_info.country %}
+                                        <i class="fas fa-map-marker-alt"></i> 
+                                        {{ activity.location_info.country }}
+                                        {% if activity.location_info.city %}
+                                            , {{ activity.location_info.city }}
+                                        {% endif %}
+                                        {% if activity.location_info.isp %}
+                                            <br><small class="text-muted">ISP: {{ activity.location_info.isp }}</small>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">Bilinmiyor</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Konum bilgisi yok</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Önem Derecesi</h6>
+                            <p class="mb-3">
+                                <span class="severity-badge severity-{{ activity.severity }}">
+                                    {{ activity.get_severity_display }}
+                                </span>
+                            </p>
+                            
+                            <h6>Durum</h6>
+                            <p class="mb-3">
+                                <span class="badge bg-secondary status-badge">
+                                    {{ activity.get_status_display }}
+                                </span>
+                            </p>
+                            
+                            <h6>Risk Skoru</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>{{ activity.risk_score }}/100</span>
+                                    <span class="text-muted">
+                                        {% if activity.risk_score < 30 %}Düşük{% elif activity.risk_score < 70 %}Orta{% else %}Yüksek{% endif %}
+                                    </span>
+                                </div>
+                                <div class="risk-meter">
+                                    <div class="risk-fill risk-{% if activity.risk_score < 30 %}low{% elif activity.risk_score < 70 %}medium{% else %}high{% endif %}"
+                                         style="--risk-width: {{ activity.risk_score|default:'0' }}%"></div>
+                                </div>
+                            </div>
+                            
+                            <h6>Otomatik Engelleme</h6>
+                            <p class="mb-3">
+                                {% if activity.auto_blocked %}
+                                    <span class="badge bg-danger"><i class="fas fa-ban"></i> Engellenmiş</span>
+                                {% else %}
+                                    <span class="badge bg-success"><i class="fas fa-check"></i> Engellenmemiş</span>
+                                {% endif %}
+                            </p>
+                            
+                            <h6>Bildirimler</h6>
+                            <p class="mb-3">
+                                {% if activity.admin_notified %}
+                                    <span class="badge bg-info me-1"><i class="fas fa-user-shield"></i> Admin</span>
+                                {% endif %}
+                                {% if activity.user_notified %}
+                                    <span class="badge bg-warning"><i class="fas fa-user"></i> Kullanıcı</span>
+                                {% endif %}
+                                {% if not activity.admin_notified and not activity.user_notified %}
+                                    <span class="text-muted">Bildirim gönderilmemiş</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% if activity.notes %}
+                        <hr>
+                        <h6>Admin Notları</h6>
+                        <div class="alert alert-info">
+                            {{ activity.notes|linebreaks }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Tespit Verileri -->
+            {% if activity.detection_data %}
+            <div class="card detail-card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-search"></i> Tespit Verileri</h5>
+                </div>
+                <div class="card-body">
+                    <div class="json-viewer">
+                        <pre>{{ activity.detection_data|pprint }}</pre>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- İlgili Güvenlik Logları -->
+            <div class="card detail-card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> İlgili Güvenlik Logları</h5>
+                </div>
+                <div class="card-body">
+                    {% if related_logs %}
+                        <div class="timeline">
+                            {% for log in related_logs %}
+                                <div class="timeline-item {% if log.risk_level == 'high' %}danger{% elif log.risk_level == 'medium' %}warning{% else %}success{% endif %}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">{{ log.get_event_type_display }}</h6>
+                                            <p class="mb-1">{{ log.description }}</p>
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock"></i> {{ log.created_at|date:"d.m.Y H:i:s" }}
+                                                {% if log.user %}
+                                                    | <i class="fas fa-user"></i> {{ log.user.username }}
+                                                {% endif %}
+                                                | <i class="fas fa-globe"></i> {{ log.ip_address }}
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-{{ log.risk_level }}">
+                                            {{ log.get_risk_level_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <p>İlgili güvenlik logu bulunamadı</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Yan Panel -->
+        <div class="col-lg-4">
+            <!-- Eylem Butonları -->
+            <div class="card detail-card mb-4 action-buttons">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-cogs"></i> Eylemler</h5>
+                </div>
+                <div class="card-body">
+                    {% if activity.status != 'resolved' %}
+                        <button type="button" class="btn btn-success w-100 mb-2" 
+                                onclick="updateActivity('resolve')">
+                            <i class="fas fa-check"></i> Çözüldü Olarak İşaretle
+                        </button>
+                        <button type="button" class="btn btn-warning w-100 mb-2" 
+                                onclick="updateActivity('investigate')">
+                            <i class="fas fa-search"></i> İnceleme Durumuna Al
+                        </button>
+                        <button type="button" class="btn btn-danger w-100 mb-2" 
+                                onclick="updateActivity('confirm')">
+                            <i class="fas fa-exclamation-triangle"></i> Doğrula
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary w-100 mb-2" 
+                                onclick="updateActivity('false_positive')">
+                            <i class="fas fa-times"></i> Yanlış Pozitif
+                        </button>
+                    {% else %}
+                        <div class="alert alert-success text-center">
+                            <i class="fas fa-check-circle"></i><br>
+                            Bu aktivite çözüldü
+                        </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <button type="button" class="btn btn-info w-100 mb-2" onclick="calculateRisk()">
+                        <i class="fas fa-calculator"></i> Risk Skorunu Yeniden Hesapla
+                    </button>
+                    
+                    {% if not activity.user_notified and activity.user %}
+                        <button type="button" class="btn btn-outline-warning w-100" onclick="notifyUser()">
+                            <i class="fas fa-bell"></i> Kullanıcıyı Bilgilendir
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- İlgili Aktiviteler -->
+            {% if related_activities %}
+            <div class="card detail-card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-link"></i> Aynı IP'den Diğer Aktiviteler</h5>
+                </div>
+                <div class="card-body">
+                    {% for related in related_activities %}
+                        <div class="border-bottom pb-2 mb-2">
+                            <h6 class="mb-1">{{ related.get_activity_type_display }}</h6>
+                            <small class="text-muted">
+                                {{ related.created_at|date:"d.m.Y H:i" }} | 
+                                <span class="badge bg-{{ related.severity }}">{{ related.get_severity_display }}</span>
+                            </small>
+                        </div>
+                    {% endfor %}
+                    <a href="{% url 'security:suspicious_activities' %}?ip={{ activity.ip_address }}" 
+                       class="btn btn-outline-primary btn-sm w-100">
+                        Tümünü Görüntüle
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Kullanıcının Diğer Aktiviteleri -->
+            {% if user_activities %}
+            <div class="card detail-card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-user"></i> Kullanıcının Diğer Aktiviteleri</h5>
+                </div>
+                <div class="card-body">
+                    {% for user_activity in user_activities %}
+                        <div class="border-bottom pb-2 mb-2">
+                            <h6 class="mb-1">{{ user_activity.get_activity_type_display }}</h6>
+                            <small class="text-muted">
+                                {{ user_activity.created_at|date:"d.m.Y H:i" }} | 
+                                <span class="badge bg-{{ user_activity.severity }}">{{ user_activity.get_severity_display }}</span>
+                            </small>
+                        </div>
+                    {% endfor %}
+                    <a href="{% url 'security:suspicious_activities' %}?user={{ activity.user.username }}" 
+                       class="btn btn-outline-primary btn-sm w-100">
+                        Tümünü Görüntüle
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Güncelleme Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aktivite Güncelle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="actionType" name="action">
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notlar</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="4" 
+                                  placeholder="Bu işlemle ilgili notlarınızı buraya yazabilirsiniz...">{{ activity.notes }}</textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="submitUpdate()">Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateActivity(action) {
+    document.getElementById('actionType').value = action;
+    
+    let modal = new bootstrap.Modal(document.getElementById('updateModal'));
+    modal.show();
+}
+
+function submitUpdate() {
+    const form = document.getElementById('updateForm');
+    const formData = new FormData(form);
+    
+    fetch(`/security/suspicious-activity/{{ activity.id }}/update/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Hata: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Bir hata oluştu.');
+    });
+}
+
+function calculateRisk() {
+    // Risk skorunu yeniden hesapla (backend'de implement edilecek)
+    alert('Risk skoru yeniden hesaplanıyor...');
+}
+
+function notifyUser() {
+    // Kullanıcıyı bilgilendir (backend'de implement edilecek)
+    alert('Kullanıcı bildirimi gönderiliyor...');
+}
+</script>
+{% endblock %}

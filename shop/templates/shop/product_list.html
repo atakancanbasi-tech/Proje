@@ -1,0 +1,628 @@
+{% extends "shop/base.html" %}
+{% load static money i18n humanize l10n form_extras %}
+{% block title %}{% if is_homepage %}Ana Sayfa{% else %}Ürünler{% endif %}{% endblock %}
+
+{% block head_extra %}
+{% if is_homepage %}
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1600&auto=format&fit=crop">
+  <style>:root{ --hero-img: url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1600&auto=format&fit=crop'); }</style>
+  <script type="application/ld+json">{ "@context":"https://schema.org","@type":"WebSite","name":"Morenavera","url":"{{ request.build_absolute_uri|slice:':-1' }}","potentialAction":{"@type":"SearchAction","target":"{{ request.build_absolute_uri|slice:':-1' }}shop/products/?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+  <link rel="stylesheet" href="{% static 'css/home_extras.css' %}">
+{% else %}
+<!-- SEO Meta Tags -->
+{% if has_filters %}<meta name="robots" content="noindex,follow">{% endif %}
+<link rel="canonical" href="{{ canonical_url }}">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if is_homepage %}
+
+<!-- Premium Hero -->
+<section class="mv-hero mb-4 position-relative">
+<div class="media" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<div class="content">
+  <div class="card p-4 p-md-5">
+    <h1 class="display-5 mb-2" style="color:var(--sage-700)">Morenavera: Ivory & Sage yaşam</h1>
+    <p class="lead lead-soft mb-3">Beton biblolar, mumluklar ve saksılarda sıcak minimalizm.</p>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="#products" class="btn btn-brand btn-lg">Koleksiyonu keşfet</a>
+      <a href="{% url 'shop:product_list' %}?sort=popular" class="btn btn-outline-secondary btn-lg">En çok satanlar</a>
+    </div>
+    <div class="mv-badges mt-3">
+      <span class="chip">Ücretsiz iade • 30 gün</span>
+      <span class="chip">Hızlı gönderim</span>
+      <span class="chip">El işçiliği seçkiler</span>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- Kategori Çipleri -->
+<div class="cat-row mb-3">
+{% for c in categories|slice:":8" %}
+  <a class="chip" href="{% url 'shop:product_list' %}?category={{ c.slug }}">{{ c.name }}</a>
+{% empty %}
+  <span class="chip is-active">Tüm ürünler</span>
+{% endfor %}
+</div>
+
+<!-- Wayfair-style Deals Banner -->
+<section class="deals-banner mb-4">
+  <div class="container">
+    <div class="deals-carousel">
+      <div class="deals-track">
+        <div class="deal-item">
+          <div class="deal-content">
+            <span class="deal-badge">%40 İndirim</span>
+            <h3 class="deal-title">Beton Saksı Koleksiyonu</h3>
+            <p class="deal-desc">Seçili saksılarda büyük fırsat</p>
+            <a href="{% url 'shop:product_list' %}?category=saksılar&tag=indirim" class="btn btn-light btn-sm">Şimdi Al</a>
+          </div>
+          <div class="deal-image">
+            <img src="https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=400&auto=format&fit=crop" alt="Beton saksı" width="200" height="120" loading="lazy" decoding="async">
+          </div>
+        </div>
+        
+        <div class="deal-item">
+          <div class="deal-content">
+            <span class="deal-badge">%25 İndirim</span>
+            <h3 class="deal-title">Mumluk Setleri</h3>
+            <p class="deal-desc">İkili ve üçlü setlerde özel fiyat</p>
+            <a href="{% url 'shop:product_list' %}?category=mumluklar&tag=set" class="btn btn-light btn-sm">Keşfet</a>
+          </div>
+          <div class="deal-image">
+            <img src="https://images.unsplash.com/photo-1602874801006-e26c4c5b5e8e?q=80&w=400&auto=format&fit=crop" alt="Mumluk seti" width="200" height="120" loading="lazy" decoding="async">
+          </div>
+        </div>
+        
+        <div class="deal-item">
+          <div class="deal-content">
+            <span class="deal-badge">Ücretsiz Kargo</span>
+            <h3 class="deal-title">500₺ Üzeri Siparişler</h3>
+            <p class="deal-desc">Tüm Türkiye'ye hızlı teslimat</p>
+            <a href="{% url 'shop:product_list' %}" class="btn btn-light btn-sm">Alışverişe Başla</a>
+          </div>
+          <div class="deal-image">
+            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=400&auto=format&fit=crop" alt="Hızlı kargo" width="200" height="120" loading="lazy" decoding="async">
+          </div>
+        </div>
+        
+        <div class="deal-item">
+          <div class="deal-content">
+            <span class="deal-badge">Yeni</span>
+            <h3 class="deal-title">Sage Koleksiyonu</h3>
+            <p class="deal-desc">Doğal adaçayı tonlarında yeni tasarımlar</p>
+            <a href="{% url 'shop:product_list' %}?tag=sage" class="btn btn-light btn-sm">Görüntüle</a>
+          </div>
+          <div class="deal-image">
+            <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=400&auto=format&fit=crop" alt="Sage koleksiyon" width="200" height="120" loading="lazy" decoding="async">
+          </div>
+        </div>
+        
+        <div class="deal-item">
+          <div class="deal-content">
+            <span class="deal-badge">%30 İndirim</span>
+            <h3 class="deal-title">Dekoratif Biblolar</h3>
+            <p class="deal-desc">Modern ve minimal tasarımlar</p>
+            <a href="{% url 'shop:product_list' %}?category=biblolar&tag=indirim" class="btn btn-light btn-sm">İncele</a>
+          </div>
+          <div class="deal-image">
+            <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=400&auto=format&fit=crop" alt="Dekoratif biblo" width="200" height="120" loading="lazy" decoding="async">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Wayfair-style Category Grid -->
+<section class="container section" id="categories">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="section-title mb-0">Kategorilere Göz Atın</h2>
+    <a href="{% url 'shop:product_list' %}" class="btn btn-outline-primary">Tümünü Görüntüle</a>
+  </div>
+  
+  <div class="wayfair-category-grid">
+    <!-- Large Featured Category -->
+    <div class="category-card featured">
+      <div class="category-image">
+        <img src="https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=800&auto=format&fit=crop" alt="Ev Dekorasyonu" width="600" height="400" loading="lazy" decoding="async">
+        <div class="category-overlay">
+          <div class="category-content">
+            <h3 class="category-title">Ev Dekorasyonu</h3>
+            <p class="category-desc">Beton saksılar, mumluklar ve dekoratif objeler</p>
+            <a href="{% url 'shop:product_list' %}?category=dekorasyon" class="btn btn-light">Keşfet</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Regular Categories -->
+    <div class="category-card">
+      <div class="category-image">
+        <img src="https://images.unsplash.com/photo-1602874801006-e26c4c5b5e8e?q=80&w=400&auto=format&fit=crop" alt="Aydınlatma" width="300" height="200" loading="lazy" decoding="async">
+        <div class="category-overlay">
+          <div class="category-content">
+            <h4 class="category-title">Aydınlatma</h4>
+            <p class="category-desc">Mumluklar & Tealight</p>
+            <a href="{% url 'shop:product_list' %}?category=mumluklar" class="btn btn-light btn-sm">Görüntüle</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="category-card">
+      <div class="category-image">
+        <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=400&auto=format&fit=crop" alt="Bahçe & Bitki" width="300" height="200" loading="lazy" decoding="async">
+        <div class="category-overlay">
+          <div class="category-content">
+            <h4 class="category-title">Bahçe & Bitki</h4>
+            <p class="category-desc">Saksılar & Bitki Aksesuarları</p>
+            <a href="{% url 'shop:product_list' %}?category=saksılar" class="btn btn-light btn-sm">Görüntüle</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="category-card">
+      <div class="category-image">
+        <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=400&auto=format&fit=crop" alt="Sanat & Heykel" width="300" height="200" loading="lazy" decoding="async">
+        <div class="category-overlay">
+          <div class="category-content">
+            <h4 class="category-title">Sanat & Heykel</h4>
+            <p class="category-desc">Beton Biblolar & Heykeller</p>
+            <a href="{% url 'shop:product_list' %}?category=biblolar" class="btn btn-light btn-sm">Görüntüle</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="category-card">
+      <div class="category-image">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=400&auto=format&fit=crop" alt="Hediye Setleri" width="300" height="200" loading="lazy" decoding="async">
+        <div class="category-overlay">
+          <div class="category-content">
+            <h4 class="category-title">Hediye Setleri</h4>
+            <p class="category-desc">Özel Paketlenmiş Setler</p>
+            <a href="{% url 'shop:product_list' %}?tag=hediye" class="btn btn-light btn-sm">Görüntüle</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="category-card">
+      <div class="category-image">
+        <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=400&auto=format&fit=crop" alt="Minimalist" width="300" height="200" loading="lazy" decoding="async">
+        <div class="category-overlay">
+          <div class="category-content">
+            <h4 class="category-title">Minimalist</h4>
+            <p class="category-desc">Sade & Modern Tasarımlar</p>
+            <a href="{% url 'shop:product_list' %}?tag=minimal" class="btn btn-light btn-sm">Görüntüle</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Fresh-Picked Favorites -->
+<section class="container section fresh-favorites">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="section-title mb-1">Özenle Seçilmiş Favoriler</h2>
+      <p class="text-muted mb-0">El yapımı koleksiyonumuzdan öne çıkan parçalar</p>
+    </div>
+    <a href="{% url 'shop:product_list' %}" class="btn btn-outline-primary">Tümünü Görüntüle</a>
+  </div>
+  
+  <div class="favorites-grid">
+    {% for product in products|slice:":8" %}
+    <div class="favorite-item">
+      <div class="favorite-card">
+        <div class="favorite-image-container">
+          <img src="{{ product.image.url }}" class="favorite-image" alt="{{ product.name }}" width="300" height="300" decoding="async" loading="lazy">
+          <div class="favorite-overlay">
+            <div class="favorite-actions">
+              <button type="button" class="favorite-btn" title="Favorilere ekle" aria-label="Favorilere ekle">
+                <i class="bi bi-heart"></i>
+              </button>
+              <button type="button" class="favorite-btn" title="Hızlı bakış" aria-label="Hızlı bakış">
+                <i class="bi bi-eye"></i>
+              </button>
+              <a href="{% url 'shop:add_to_cart' product_id=product.id %}" class="favorite-btn" title="Sepete ekle" aria-label="Sepete ekle">
+                <i class="bi bi-cart-plus"></i>
+              </a>
+            </div>
+          </div>
+          {% if product.is_new %}
+          <div class="favorite-badge new">Yeni</div>
+          {% elif product.is_bestseller %}
+          <div class="favorite-badge bestseller">Çok Satan</div>
+          {% endif %}
+        </div>
+        <div class="favorite-content">
+          <div class="favorite-category">{{ product.category.name }}</div>
+          <h3 class="favorite-title">{{ product.name }}</h3>
+          <div class="favorite-rating">
+            <div class="stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-half"></i>
+            </div>
+            <span class="rating-count">({{ product.review_count|default:"12" }})</span>
+          </div>
+          <div class="favorite-price">
+            {% if product.old_price %}
+            <span class="old-price">₺{{ product.old_price|floatformat:2 }}</span>
+            {% endif %}
+            <span class="current-price">₺{{ product.price|floatformat:2 }}</span>
+          </div>
+          <div class="favorite-shipping">
+            <i class="bi bi-truck text-success me-1"></i>
+            <small class="text-success">Ücretsiz kargo</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="text-center py-5">
+        <i class="bi bi-box-seam display-1 text-muted mb-3"></i>
+        <h3 class="text-muted">Henüz ürün eklenmedi</h3>
+        <p class="text-muted">Yakında harika ürünlerle karşınızda olacağız!</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Press strip -->
+<section class="container section pt-0">
+  <div class="press-strip">
+    <div class="press">ELLE DECOR</div>
+    <div class="press">ARCHDAILY</div>
+    <div class="press">DESIGN MILK</div>
+    <div class="press">DWELL</div>
+  </div>
+</section>
+
+<!-- Newsletter -->
+<section class="container section">
+  <div class="newsletter">
+    <div class="row g-3 align-items-center">
+      <div class="col-lg-6">
+        <h3 class="mb-1">Morenavera Bülteni</h3>
+        <p class="hint mb-0">Yeni ürünler ve özel kampanyalar — ayda 1.</p>
+      </div>
+      <div class="col-lg-6">
+        <form action="/newsletter/subscribe/" method="post" class="d-flex gap-2">
+          {% csrf_token %}
+          <input type="email" name="email" required class="form-control" placeholder="e-posta adresiniz">
+          <button class="btn btn-brand" type="submit">Katıl</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- kalan ürün listeleme -->
+<div class="section">
+  <div class="container">
+    <div class="section-heading">
+      <h2>Koleksiyonlarımız</h2><span class="muted">Seçilmiş parçalar</span>
+    </div>
+{% load static %}
+  {% if is_homepage %}
+    {% with title="Morena Vera – Beton Dekor Koleksiyonu" subtitle="Doğal dokular, modern formlar. Evine sıcak bir karakter kat." image='img/banner-wide.svg' %}
+      {% include "shop/_collection_banner.html" %}
+    {% endwith %}
+    <!-- Kategori blokları (statik içerik) -->
+    <section class="container my-4">
+      <div class="row g-3">
+        <div class="col-12 col-sm-6 col-lg-4">
+          <a href="{% url 'shop:product_list' %}?q=biblo" class="card card-soft h-100 text-decoration-none">
+            <div class="ratio ratio-16x9">
+              <img src="{% static 'img/placeholder-4x3.svg' %}" alt="Beton Biblolar" loading="lazy" width="640" height="360" class="rounded-top">
+            </div>
+            <div class="card-body">
+              <h5 class="mb-1">Beton Biblolar</h5>
+              <p class="text-muted mb-0">Minimal heykeller</p>
+            </div>
+          </a>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4">
+          <a href="{% url 'shop:product_list' %}?q=mumluk" class="card card-soft h-100 text-decoration-none">
+            <div class="ratio ratio-16x9">
+              <img src="{% static 'img/placeholder-4x3.svg' %}" alt="Mumluklar" loading="lazy" width="640" height="360" class="rounded-top">
+            </div>
+            <div class="card-body">
+              <h5 class="mb-1">Mumluklar</h5>
+              <p class="text-muted mb-0">Sıcak atmosfer</p>
+            </div>
+          </a>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4">
+          <a href="{% url 'shop:product_list' %}?q=saksi" class="card card-soft h-100 text-decoration-none">
+            <div class="ratio ratio-16x9">
+              <img src="{% static 'img/placeholder-4x3.svg' %}" alt="Saksılar" loading="lazy" width="640" height="360" class="rounded-top">
+            </div>
+            <div class="card-body">
+              <h5 class="mb-1">Saksılar</h5>
+              <p class="text-muted mb-0">Doğal doku</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    {% include "shop/partials/collections.html" %}
+  {% endif %}
+
+  {% if is_homepage %}
+    <!-- Ana sayfa grid-ler -->
+    {% if featured_products %}
+      <div class="container section">
+        <h2 class="mb-3">Öne Çıkan Ürünler</h2>
+        <div class="prod-grid">
+          {% for product in featured_products %}
+            <article class="product-card reveal">
+              <a href="{{ product.get_absolute_url }}">
+                <div class="position-relative">
+                  <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/placeholder-4x3.svg' %}{% endif %}" class="thumb" alt="{{ product.name }}" loading="lazy" width="600" height="450" decoding="async">
+                  <div class="actions">
+                    <button type="button" class="icon-btn" title="Favorilere ekle" aria-label="Favorilere ekle">♡</button>
+                    <button type="button" class="icon-btn" title="Hızlı bakış" aria-label="Hızlı bakış">👁</button>
+                  </div>
+                </div>
+              </a>
+              <div class="meta">
+                <div class="title">{{ product.name }}</div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="price">₺ {{ product.price|floatformat:2|localize }}</div>
+                  <div class="meta">{% if product.category %}{{ product.category.name }}{% endif %}</div>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+    {% if bestsellers %}
+      <div class="container section">
+        <h2 class="mb-3">En Çok Satanlar</h2>
+        <div class="prod-grid">
+          {% for product in bestsellers %}
+            <article class="product-card reveal">
+              <a href="{{ product.get_absolute_url }}">
+                <div class="position-relative">
+                  <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/placeholder-4x3.svg' %}{% endif %}" class="thumb" alt="{{ product.name }}" loading="lazy" width="600" height="450" decoding="async">
+                  <div class="actions">
+                    <button type="button" class="icon-btn" title="Favorilere ekle" aria-label="Favorilere ekle">♡</button>
+                    <button type="button" class="icon-btn" title="Hızlı bakış" aria-label="Hızlı bakış">👁</button>
+                  </div>
+                </div>
+              </a>
+              <div class="meta">
+                <div class="title">{{ product.name }}</div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="price">₺ {{ product.price|floatformat:2|localize }}</div>
+                  <div class="meta">{% if product.category %}{{ product.category.name }}{% endif %}</div>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+    {% if new_products %}
+      <div class="container section">
+        <h2 class="mb-3">Yeni Ürünler</h2>
+        <div class="prod-grid">
+          {% for product in new_products %}
+            <article class="product-card reveal">
+              <a href="{{ product.get_absolute_url }}">
+                <div class="position-relative">
+                  <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/placeholder-4x3.svg' %}{% endif %}" class="thumb" alt="{{ product.name }}" loading="lazy" width="600" height="450" decoding="async">
+                  <div class="actions">
+                    <button type="button" class="icon-btn" title="Favorilere ekle" aria-label="Favorilere ekle">♡</button>
+                    <button type="button" class="icon-btn" title="Hızlı bakış" aria-label="Hızlı bakış">👁</button>
+                  </div>
+                </div>
+              </a>
+              <div class="meta">
+                <div class="title">{{ product.name }}</div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="price">₺ {{ product.price|floatformat:2|localize }}</div>
+                  <div class="meta">{% if product.category %}{{ product.category.name }}{% endif %}</div>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% else %}
+    <!-- Ürün listesi sayfası için -->
+    <div class="container section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h5 m-0">{% if is_homepage %}Öne Çıkanlar{% else %}Ürünler{% endif %}</h1>
+        <button class="btn btn-outline-secondary btn-sm btn-filter" type="button" id="filterToggle">Filtreler</button>
+      </div>
+      <div class="filters-wrap">
+        <aside class="filter-pane" id="filterPane" aria-hidden="true">
+          <h6>Filtreler</h6>
+          <form method="get">
+            <div class="filter-group">
+              <label class="form-label mb-1">Arama</label>
+              <input class="form-control me-2" type="search" placeholder="Ürün ara..." name="q" value="{{ request.GET.q }}" aria-label="Ürün ara">
+            </div>
+            <div class="filter-group">
+              <label class="form-label mb-1">Kategori</label>
+              <select class="form-select" name="category">
+                <option value="">Tümü</option>
+                {% for c in categories %}<option value="{{ c.id }}" {% if request.GET.category|default:'' == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="filter-group">
+              <div class="row g-2">
+                <div class="col">
+                  <label class="form-label mb-1">Min ₺</label>
+                  <input class="form-control" type="number" step="0.01" name="min_price" value="{{ request.GET.min_price }}">
+                </div>
+                <div class="col">
+                  <label class="form-label mb-1">Maks ₺</label>
+                  <input class="form-control" type="number" step="0.01" name="max_price" value="{{ request.GET.max_price }}">
+                </div>
+              </div>
+            </div>
+            <div class="filter-group">
+              <label class="form-label mb-1">Sırala</label>
+              <select class="form-select" name="sort">
+                <option value="">Varsayılan</option>
+                <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Fiyat (Artan)</option>
+                <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Fiyat (Azalan)</option>
+                <option value="new" {% if request.GET.sort == 'new' %}selected{% endif %}>En Yeniler</option>
+                <option value="popular" {% if request.GET.sort == 'popular' %}selected{% endif %}>Popüler</option>
+              </select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn btn-brand w-100">Uygula</button>
+              <a class="btn btn-outline-secondary w-100" href="{% url 'shop:product_list' %}">Sıfırla</a>
+            </div>
+          </form>
+        </aside>
+        <div>
+          <div class="prod-grid">
+            {% for product in page_obj %}
+              <div class="product-card h-100 reveal">
+                <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-reset">
+                  <div class="position-relative">
+                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/placeholder-4x3.svg' %}{% endif %}" class="thumb" alt="{{ product.name }}" width="600" height="450" decoding="async" loading="lazy">
+                    <div class="actions">
+                      <button type="button" class="icon-btn" title="Favorilere ekle" aria-label="Favorilere ekle">♡</button>
+                      <button type="button" class="icon-btn" title="Hızlı bakış" aria-label="Hızlı bakış">👁</button>
+                    </div>
+                  </div>
+                </a>
+                <div class="meta">
+                  <h3 class="title h6 mb-1">{{ product.name }}</h3>
+                  <p class="text-muted small mb-2">{{ product.category.name }}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="price">₺ {{ product.price|floatformat:2|localize }}</span>
+                    <a href="{% url 'shop:add_to_wishlist' product.id %}" class="btn btn-outline-brand btn-sm">Favori</a>
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <p>Şu anda listelenecek ürün bulunamadı.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  
+  {% if is_homepage %}
+  <!-- Newsletter tekrar -->
+  <section class="container section">
+    <div class="newsletter">
+      <div class="row g-3 align-items-center">
+        <div class="col-lg-6">
+          <h3 class="mb-1">Morenavera Bülteni</h3>
+          <p class="hint mb-0">Yeni ürünler ve özel kampanyalar — ayda 1.</p>
+        </div>
+        <div class="col-lg-6">
+          <form action="/newsletter/subscribe/" method="post" class="d-flex gap-2">
+            {% csrf_token %}
+            <input type="email" name="email" required class="form-control" placeholder="e-posta adresiniz">
+            <button class="btn btn-brand" type="submit">Katıl</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+  
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if is_homepage %}
+<script>
+// Parallax efekti için scroll event listener (sadece desktop)
+if (window.innerWidth > 768 && !("ontouchstart" in window)) {
+    let ticking = false;
+    
+    function updateParallax() {
+        const scrolled = window.pageYOffset;
+        const heroContent = document.querySelector('.hero-content');
+        const heroSection = document.getElementById('hero');
+        
+        if (heroContent && heroSection) {
+            const rate = scrolled * -0.5;
+            heroContent.style.transform = `translate3d(0, ${rate}px, 0)`;
+            
+            // Hero section arka plan parallax
+            const bgRate = scrolled * 0.3;
+            heroSection.style.backgroundPosition = `center ${bgRate}px`;
+        }
+        
+        ticking = false;
+    }
+    
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            requestAnimationFrame(updateParallax);
+            ticking = true;
+        }
+    });
+}
+
+// Intersection Observer ile hero section animasyonları
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+        }
+    });
+}, observerOptions);
+
+// Hero section elementlerini gözlemle
+document.addEventListener('DOMContentLoaded', function() {
+    const heroElements = document.querySelectorAll('.hero-title, .hero-sub, .btn');
+    heroElements.forEach(el => observer.observe(el));
+});
+
+// Simple A/B pick once per browser
+try{
+  const key='mv.hero.variant';
+  let v=localStorage.getItem(key);
+  if(!v){ v=Math.random()<0.5?'A':'B'; localStorage.setItem(key,v); }
+  const hero=document.getElementById('hero');
+  if(hero){ hero.classList.remove('heroA','heroB'); hero.classList.add(v==='A'?'heroA':'heroB');
+    if(v==='B'){
+      hero.innerHTML = `
+        <div class="pane d-flex flex-column justify-content-center">
+          <span class="badge bg-light text-dark mb-2">morenavera.com</span>
+          <h1 class="h2 mb-2">Doğal minimalizm</h1>
+          <p class="lead">Adaçayı tonlarında beton dekor.</p>
+          <a href="{% url 'shop:product_list' %}?q=beton" class="btn btn-brand">Koleksiyonu Keşfet</a>
+        </div>
+        <div class="visual" aria-hidden="true"></div>`;
+    }
+  }
+}catch(e){}
+</script>
+{% endif %}
+{% endblock %}

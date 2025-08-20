@@ -1,0 +1,11 @@
+{
+  "name": "satis-frontend-quality",
+  "private": true,
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  },
+  "scripts": {
+    "lint:js": "eslint static/js",
+    "fix:js": "eslint --fix static/js"
+  }
+}

@@ -1,0 +1,249 @@
+{% extends "shop/base.html" %}
+{% load money i18n humanize l10n %}
+{% block title %}Sepet{% endblock %}
+{% block content %}
+  <h1 class="my-3">Sepet</h1>
+  {% if cart|length %}
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Ürün</th>
+            <th class="text-center">Adet</th>
+            <th class="text-end">Birim Fiyat</th>
+            <th class="text-end">Tutar</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart %}
+            <tr>
+              <td>
+                {{ item.product.name }}
+                {% if item.variant %}
+                  <br><small class="text-muted">{{ item.variant.get_attribute_display }}</small>
+                  <br><small class="text-muted">SKU: {{ item.variant.sku }}</small>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                <form method="post" action="{% url 'shop:update_cart_quantity' item.product.id %}" class="d-inline-flex align-items-center gap-2">
+                  {% csrf_token %}
+                  <input type="number" name="quantity" min="0" max="{{ item.product.stock }}" value="{{ item.quantity }}" class="form-control form-control-sm" style="width:90px;">
+                  <button type="submit" class="btn btn-sm btn-outline-primary">Kaydet</button>
+                </form>
+              </td>
+              <td class="text-end">
+                {% if item.variant %}
+                  ₺ {{ item.variant.effective_price|floatformat:2|localize }}
+              {% else %}
+                ₺ {{ item.product.price|floatformat:2|localize }}
+              {% endif %}
+            </td>
+            <td class="text-end">₺ {{ item.total_price|floatformat:2|localize }}</td>
+              <td class="text-end">
+                <a href="{% url 'shop:remove_from_cart' item.product.id %}" class="btn btn-sm btn-outline-danger">Sil</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3" class="text-end">Ara Toplam</th>
+            <th class="text-end">₺ {{ cart_total_price|floatformat:2|localize }}</th>
+            <th></th>
+          </tr>
+          {% if request.session.coupon_code %}
+          <tr>
+            <td colspan="3" class="text-end">
+              <span class="text-success">Kupon ({{ request.session.coupon_code }})</span>
+              <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeCoupon()">Kaldır</button>
+            </td>
+            <td class="text-end text-success">-₺ {{ request.session.discount_amount|floatformat:2|localize }}</td>
+            <td></td>
+          </tr>
+          <tr>
+            <th colspan="3" class="text-end">Genel Toplam</th>
+            <th class="text-end">₺ {{ cart_total_price|add:request.session.discount_amount|floatformat:2|localize }}</th>
+            <th></th>
+          </tr>
+          {% else %}
+          <tr>
+            <th colspan="3" class="text-end">Genel Toplam</th>
+            <th class="text-end">₺ {{ cart_total_price|floatformat:2|localize }}</th>
+            <th></th>
+          </tr>
+          {% endif %}
+        </tfoot>
+      </table>
+    </div>
+    
+    <!-- Kupon Uygulama Bölümü -->
+    {% if not request.session.coupon_code %}
+    <div class="card mb-3">
+      <div class="card-header">
+        <h5 class="mb-0">Kupon Kodu</h5>
+      </div>
+      <div class="card-body">
+        <form id="couponForm" class="row g-3">
+          {% csrf_token %}
+          <div class="col-md-8">
+            <input type="text" class="form-control" id="couponCode" placeholder="Kupon kodunuzu giriniz" maxlength="20">
+          </div>
+          <div class="col-md-4">
+            <button type="submit" class="btn btn-primary w-100">Kupon Uygula</button>
+          </div>
+        </form>
+        <div id="couponMessage" class="mt-2"></div>
+        
+        {% if user.is_authenticated %}
+        <div class="mt-3">
+          <button type="button" class="btn btn-outline-info btn-sm" onclick="showUserCoupons()">Kullanılabilir Kuponlarım</button>
+          <div id="userCoupons" class="mt-2" style="display: none;"></div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+    
+    <div class="d-flex gap-2">
+      <a href="{% url 'shop:product_list' %}" class="btn btn-outline-secondary">Alışverişe Devam Et</a>
+        <a class="btn btn-success" href="{% url 'shop:checkout' %}">Ödeme</a>
+    </div>
+  {% else %}
+    <div class="alert alert-info">Sepetiniz boş.</div>
+    <a href="{% url 'shop:product_list' %}" class="btn btn-primary">Ürünlere Git</a>
+  {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Kupon uygulama
+document.getElementById('couponForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const couponCode = document.getElementById('couponCode').value.trim();
+    const messageDiv = document.getElementById('couponMessage');
+    
+    if (!couponCode) {
+        showMessage('Kupon kodu giriniz.', 'danger');
+        return;
+    }
+    
+    // Loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Kontrol ediliyor...';
+    
+    fetch('{% url "shop:validate_coupon" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: 'coupon_code=' + encodeURIComponent(couponCode)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage(data.message, 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            showMessage(data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        showMessage('Bir hata oluştu. Lütfen tekrar deneyin.', 'danger');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    });
+    
+    function showMessage(message, type) {
+        messageDiv.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>`;
+    }
+});
+
+// Kupon kaldırma
+function removeCoupon() {
+    if (!confirm('Kuponu kaldırmak istediğinizden emin misiniz?')) {
+        return;
+    }
+    
+    fetch('{% url "shop:remove_coupon" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Kupon kaldırılırken bir hata oluştu.');
+        }
+    })
+    .catch(error => {
+        alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+    });
+}
+
+// Kullanıcı kuponlarını göster
+function showUserCoupons() {
+    const couponsDiv = document.getElementById('userCoupons');
+    
+    if (couponsDiv.style.display === 'none') {
+        fetch('{% url "shop:get_user_coupons" %}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.coupons.length > 0) {
+                let html = '<div class="row g-2">';
+                data.coupons.forEach(coupon => {
+                    html += `
+                        <div class="col-md-6">
+                            <div class="card card-body p-2">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>${coupon.code}</strong><br>
+                                        <small class="text-muted">${coupon.name}</small><br>
+                                        <small class="text-success">₺ ${coupon.discount_amount.toFixed(2)} indirim</small>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                            onclick="applyCoupon('${coupon.code}')">Uygula</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                couponsDiv.innerHTML = html;
+                couponsDiv.style.display = 'block';
+            } else {
+                couponsDiv.innerHTML = '<div class="alert alert-info">Kullanılabilir kuponunuz bulunmuyor.</div>';
+                couponsDiv.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            couponsDiv.innerHTML = '<div class="alert alert-danger">Kuponlar yüklenirken hata oluştu.</div>';
+            couponsDiv.style.display = 'block';
+        });
+    } else {
+        couponsDiv.style.display = 'none';
+    }
+}
+
+// Kupon uygulama (kullanıcı kuponlarından)
+function applyCoupon(couponCode) {
+    document.getElementById('couponCode').value = couponCode;
+    document.getElementById('couponForm').dispatchEvent(new Event('submit'));
+}
+</script>
+{% endblock %}

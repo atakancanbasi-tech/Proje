@@ -1,0 +1,75 @@
+{% extends "shop/base.html" %}
+{% load form_extras %}
+{% block title %}Giriş · Morenavera{% endblock %}
+
+{% block content %}
+<section class="auth-wrap container py-5">
+  <div class="row justify-content-center w-100">
+    <div class="col-md-8 col-lg-5">
+      <div class="auth-card p-4 p-md-5">
+        <div class="text-center mb-3">
+          <span class="brand-badge" aria-hidden="true"></span>
+          <h1 class="h4 mt-3 mb-1" style="color:var(--sage-700)">Hesabınıza Giriş</h1>
+          <p class="text-muted small mb-0">Morenavera’ya hoş geldiniz.</p>
+        </div>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}" class="form-label">E-posta veya kullanıcı adı</label>
+            {{ form.username|add_class:"form-control" }}
+            {{ form.username.errors }}
+          </div>
+
+          <div class="mb-2">
+            <label for="{{ form.password.id_for_label }}" class="form-label">Şifre</label>
+            <div class="position-relative">
+              {{ form.password|add_class:"form-control pe-5" }}
+              <button type="button" class="toggle-pass" aria-label="Şifreyi göster / gizle" title="Şifreyi göster / gizle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5"/></svg>
+              </button>
+            </div>
+            {{ form.password.errors }}
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="1" id="id_remember">
+              <label class="form-check-label" for="id_remember">Beni hatırla</label>
+            </div>
+            <a class="small" href="{% url 'password_reset' %}">Şifremi Unuttum</a>
+          </div>
+
+          <button type="submit" class="btn btn-brand w-100">Giriş Yap</button>
+        </form>
+
+        <div class="separator my-4"><span>veya</span></div>
+
+        <div class="d-grid gap-2">
+          <a class="btn btn-outline-secondary oauth-btn" href="#" role="button" aria-disabled="true">Google ile devam et <span class="text-muted">(yakında)</span></a>
+        </div>
+
+        <p class="mt-4 text-center small mb-0">Hesabın yok mu? <a href="{% url 'accounts:register' %}">Kayıt ol</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const btn = document.querySelector('.toggle-pass');
+  if(!btn) return;
+  const input = document.getElementById('{{ form.password.id_for_label }}');
+  btn.addEventListener('click', function(){
+    if(!input) return;
+    const t = input.getAttribute('type') === 'password' ? 'text' : 'password';
+    input.setAttribute('type', t);
+    this.setAttribute('aria-pressed', String(t === 'text'));
+  });
+})();
+</script>
+{% endblock %}

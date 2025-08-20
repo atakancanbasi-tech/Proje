@@ -1,0 +1,26 @@
+<section class="section">
+  <div class="container-wide">
+    <div class="mega-hero">
+      <picture>
+        <!-- 1920+ -->
+        <source media="(min-width: 1440px)" srcset="{% static 'img/hero-banner.svg' %}">
+        <!-- 1280 -->
+        <source media="(min-width: 992px)" srcset="{% static 'img/hero-banner.svg' %}">
+        <!-- 820 -->
+        <img src="{% static 'img/hero-banner.svg' %}"
+             alt="Morenavera — beton dekorasyon, mumluk, saksı"
+             width="1920" height="760" fetchpriority="high" decoding="async" />
+      </picture>
+      <div class="layer"></div>
+      <div class="content">
+        <div class="cta">
+          <div class="badge-trust mb-3">Ücretsiz kargo 500₺+</div>
+          <h1 class="display-5 fw-bold mb-2">Betonun sıcak yorumu.</h1>
+          <p class="lead mb-3">Mumluk, biblo ve saksılarda zarif, minimal tasarım.</p>
+          <a href="{% url 'shop:product_list' %}?sort=-created" class="btn btn-brand btn-lg">Yeni Gelenler</a>
+          <a href="{% url 'shop:product_list' %}?q=indirim" class="btn btn-outline-brand btn-lg">Fırsatlar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

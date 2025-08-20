@@ -1,0 +1,11 @@
+{% extends "shop/base.html" %}
+{% block title %}Hesap Doğrulandı{% endblock %}
+{% block content %}
+<div class="container py-4">
+
+<h1 class="h4 mb-3">Hesabınız Doğrulandı</h1>
+<p>Artık giriş yapabilirsiniz.</p>
+
+<a class="btn btn-success" href="{% url 'security:login' %}">Giriş Yap</a>
+</div>
+{% endblock %}

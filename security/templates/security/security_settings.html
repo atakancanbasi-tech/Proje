@@ -1,0 +1,249 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Güvenlik Ayarları{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="fas fa-cog"></i> Güvenlik Ayarları</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-shield-alt"></i> İki Faktörlü Kimlik Doğrulama</h5>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        {{ form.two_factor_enabled }}
+                                        <label class="form-check-label" for="{{ form.two_factor_enabled.id_for_label }}">
+                                            2FA Etkinleştir
+                                        </label>
+                                    </div>
+                                    <div class="form-text">
+                                        Hesabınızı daha güvenli hale getirmek için e-posta tabanlı iki faktörlü kimlik doğrulamayı etkinleştirin.
+                                    </div>
+                                    {% if form.two_factor_enabled.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.two_factor_enabled.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-bell"></i> Güvenlik Bildirimleri</h5>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        {{ form.login_notifications }}
+                                        <label class="form-check-label" for="{{ form.login_notifications.id_for_label }}">
+                                            Giriş Bildirimleri
+                                        </label>
+                                    </div>
+                                    <div class="form-text">
+                                        Hesabınıza her giriş yapıldığında e-posta bildirimi alın.
+                                    </div>
+                                </div>
+                                
+
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row">
+
+                            
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-lock"></i> Hesap Güvenliği</h5>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        {{ form.auto_lock_account }}
+                                        <label class="form-check-label" for="{{ form.auto_lock_account.id_for_label }}">
+                                            Otomatik Hesap Kilitleme
+                                        </label>
+                                    </div>
+                                    <div class="form-text">
+                                        Başarısız giriş denemelerinde hesabı otomatik olarak kilitle.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'security:change_password' %}" class="btn btn-outline-warning">
+                                <i class="fas fa-key"></i> Şifre Değiştir
+                            </a>
+                            <button type="submit" class="btn btn-info">
+                                <i class="fas fa-save"></i> Ayarları Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Güvenlik Durumu -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-shield-check"></i> Güvenlik Durumu</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>İki Faktörlü Kimlik Doğrulama:</span>
+                            {% if security_settings.two_factor_enabled %}
+                                <span class="badge bg-success"><i class="fas fa-check"></i> Aktif</span>
+                            {% else %}
+                                <span class="badge bg-danger"><i class="fas fa-times"></i> Pasif</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Güvenlik Bildirimleri:</span>
+                            {% if security_settings.suspicious_activity_alerts %}
+                                <span class="badge bg-success"><i class="fas fa-check"></i> Aktif</span>
+                            {% else %}
+                                <span class="badge bg-warning"><i class="fas fa-exclamation"></i> Pasif</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Hesap Kilitleme:</span>
+                            {% if security_settings.auto_lock_account %}
+                                <span class="badge bg-success"><i class="fas fa-check"></i> Aktif</span>
+                            {% else %}
+                                <span class="badge bg-warning"><i class="fas fa-exclamation"></i> Pasif</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <small class="text-muted">
+                            Son güncelleme: {{ security_settings.updated_at|date:"d.m.Y H:i" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Son Güvenlik Logları -->
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Son Aktiviteler</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_logs %}
+                        {% for log in recent_logs %}
+                            <div class="d-flex justify-content-between align-items-start mb-2 pb-2 border-bottom">
+                                <div>
+                                    <small class="fw-bold">
+                                        {% if log.event_type == 'login_success' %}
+                                            <i class="fas fa-sign-in-alt text-success"></i> Başarılı Giriş
+                                        {% elif log.event_type == 'login_failed' %}
+                                            <i class="fas fa-times text-danger"></i> Başarısız Giriş
+                                        {% elif log.event_type == 'password_change' %}
+                                            <i class="fas fa-key text-info"></i> Şifre Değişikliği
+                                        {% elif log.event_type == '2fa_enabled' %}
+                                            <i class="fas fa-shield-alt text-success"></i> 2FA Etkinleştirildi
+                                        {% elif log.event_type == '2fa_disabled' %}
+                                            <i class="fas fa-shield-alt text-warning"></i> 2FA Devre Dışı
+                                        {% else %}
+                                            <i class="fas fa-info-circle text-info"></i> {{ log.get_event_type_display }}
+                                        {% endif %}
+                                    </small>
+                                    <br>
+                                    <small class="text-muted">{{ log.ip_address }}</small>
+                                </div>
+                                <small class="text-muted">{{ log.created_at|date:"d.m H:i" }}</small>
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="text-center mt-3">
+                            <a href="{% url 'security:security_logs' %}" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-list"></i> Tüm Logları Görüntüle
+                            </a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center mb-0">
+                            <i class="fas fa-info-circle"></i><br>
+                            Henüz güvenlik logu bulunmuyor.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.form-control {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #17a2b8;
+    box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+}
+
+.btn {
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-weight: 600;
+}
+
+.alert {
+    border-radius: 10px;
+}
+
+.shadow {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.form-check-input:checked {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #dee2e6 !important;
+}
+</style>
+{% endblock %}

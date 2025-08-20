@@ -1,0 +1,33 @@
+{% load static %}
+<section class="section">
+  <div class="container">
+    <div class="section-heading"><h2>Koleksiyonlar</h2><span class="muted">Morenavera seçkisi</span></div>
+    <div class="row g-3">
+      <div class="col-12 col-lg-6">
+        <a href="{% url 'shop:product_list' %}?q=mumluk" class="banner-card">
+          <img src="{% static 'img/placeholder-4x3.svg' %}" alt="Mumluk Koleksiyonu" loading="lazy" width="840" height="520">
+          <div class="banner-overlay">
+            <div class="h4 mb-1">Mumluk Koleksiyonu</div>
+            <div class="small">Loş ışıktan ilham alın</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-lg-3">
+        <a href="{% url 'shop:product_list' %}?q=saksı" class="banner-card">
+          <img src="{% static 'img/placeholder-4x3.svg' %}" alt="Saksılar" loading="lazy" width="420" height="520">
+          <div class="banner-overlay">
+            <div class="h5 mb-0">Saksılar</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-lg-3">
+        <a href="{% url 'shop:product_list' %}?q=biblo" class="banner-card">
+          <img src="{% static 'img/placeholder-4x3.svg' %}" alt="Beton Biblolar" loading="lazy" width="420" height="520">
+          <div class="banner-overlay">
+            <div class="h5 mb-0">Beton Biblolar</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

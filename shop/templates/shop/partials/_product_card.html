@@ -1,0 +1,53 @@
+{% load static l10n %}
+{# Premium ürün kartı – ikincil görsel hover, hızlı ekle, opsiyonel rating ve rozetler #}
+<div class="card-product">
+  {% if product.is_new or product.is_bestseller %}
+    <span class="p-badge {% if product.is_new %}brand{% else %}black{% endif %}">
+      {% if product.is_new %}Yeni{% else %}Popüler{% endif %}
+    </span>
+  {% endif %}
+
+  <a class="img-wrap d-block" href="{{ product.get_absolute_url }}" aria-label="{{ product.name }}">
+    {# Birincil görsel #}
+    {% if product.image %}
+      <img class="img-primary" src="{{ product.image.url }}" alt="{{ product.name }}" width="600" height="400" loading="lazy" decoding="async">
+    {% else %}
+      <img class="img-primary" src="{% static 'img/placeholder-4x3.svg' %}" alt="" width="600" height="400" loading="lazy" decoding="async">
+    {% endif %}
+
+    {# İkincil görsel: varsa varyant görseli, yoksa ürün görseli; hiç yoksa placeholder #}
+    {% if product.variants.first and product.variants.first.image %}
+      <img class="img-secondary" src="{{ product.variants.first.image.url }}" alt="" width="600" height="400" loading="lazy" decoding="async">
+    {% elif product.image %}
+      <img class="img-secondary" src="{{ product.image.url }}" alt="" width="600" height="400" loading="lazy" decoding="async">
+    {% else %}
+      <img class="img-secondary" src="{% static 'img/placeholder-4x3.svg' %}" alt="" width="600" height="400" loading="lazy" decoding="async">
+    {% endif %}
+  </a>
+
+  <div class="quick-add">
+    <form action="{% url 'shop:add_to_cart' product.id %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="quantity" value="1">
+      <button class="btn btn-brand btn-sm" type="submit" aria-label="Sepete ekle">Sepete ekle</button>
+    </form>
+  </div>
+
+  <div class="card-body">
+    <div class="title text-truncate" title="{{ product.name }}">{{ product.name }}</div>
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="price">₺ {{ product.price|floatformat:2|localize }}</div>
+
+      {% if product.average_rating %}
+        <div class="rating" style="--rating: {{ product.average_rating|floatformat:1 }}">
+          <span class="stars" aria-hidden="true"></span>
+          <span class="count">({{ product.review_count|default:0 }})</span>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if product.short_description %}
+      <div class="muted mt-1 text-truncate">{{ product.short_description }}</div>
+    {% endif %}
+  </div>
+</div>

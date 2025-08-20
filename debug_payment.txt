@@ -1,0 +1,222 @@
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x00000225B57E57F0>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_cost': Decimal('0.00'), 'processing_fee': Decimal('0.00'), 'total_amount': Decimal('100.00')}
+DEBUG: Payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755284116', message='OK')
+DEBUG: Payment success: True
+DEBUG: Payment successful, creating order
+DEBUG: Exception occurred: send_order_status_email() got an unexpected keyword argument 'status_changed'
+DEBUG: Traceback: Traceback (most recent call last):
+  File "C:\projeler\satis_sitesi\shop\views\cart.py", line 189, in checkout_pay
+    order = Order.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+    ...<8 lines>...
+        status='paid'
+    )
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1023, in save_base
+    post_save.send(
+    ~~~~~~~~~~~~~~^
+        sender=origin,
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        using=using,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\dispatch\dispatcher.py", line 189, in send
+    response = receiver(signal=self, sender=sender, **named)
+  File "C:\projeler\satis_sitesi\shop\signals.py", line 32, in order_post_save
+    send_order_status_email(instance, status_changed=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: send_order_status_email() got an unexpected keyword argument 'status_changed'
+
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x0000018C0ED49940>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_cost': Decimal('0.00'), 'processing_fee': Decimal('0.00'), 'total_amount': Decimal('100.00')}
+DEBUG: Payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755284306', message='OK')
+DEBUG: Payment success: True
+DEBUG: Payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x000001D59567A120>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_cost': Decimal('0.00'), 'processing_fee': Decimal('0.00'), 'total': Decimal('100.00')}
+DEBUG: Payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755285702', message='OK')
+DEBUG: Payment success: True
+DEBUG: Payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x000002ABAF3EEF90>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_cost': Decimal('0.00'), 'processing_fee': Decimal('0.00'), 'total': Decimal('100.00')}
+DEBUG: Payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755285826', message='OK')
+DEBUG: Payment success: True
+DEBUG: Payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x0000020EBD19FA10>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_cost': Decimal('0.00'), 'processing_fee': Decimal('0.00'), 'total': Decimal('100.00')}
+DEBUG: Payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755286058', message='OK')
+DEBUG: Payment success: True
+DEBUG: Payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x000002908F848830>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_cost': Decimal('0.00'), 'processing_fee': Decimal('0.00'), 'total': Decimal('100.00')}
+DEBUG: Payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755286383', message='OK')
+DEBUG: Payment success: True
+DEBUG: Payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x0000024C5E8A8830>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_cost': Decimal('0.00'), 'processing_fee': Decimal('0.00'), 'total': Decimal('100.00')}
+DEBUG: Payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755286460', message='OK')
+DEBUG: Payment success: True
+DEBUG: Payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x000002E592922A50>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_cost': Decimal('0.00'), 'processing_fee': Decimal('0.00'), 'total': Decimal('100.00')}
+DEBUG: Payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755286541', message='OK')
+DEBUG: Payment success: True
+DEBUG: Payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x00000171FE852900>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_cost': Decimal('0.00'), 'processing_fee': Decimal('0.00'), 'total': Decimal('100.00')}
+DEBUG: Payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755286789', message='OK')
+DEBUG: Payment success: True
+DEBUG: Payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x0000021F5CD12660>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755291214', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Exception occurred: Order() got unexpected keyword arguments: 'payment_ref'
+DEBUG: Traceback: Traceback (most recent call last):
+  File "C:\projeler\satis_sitesi\shop\views\cart.py", line 263, in checkout_pay
+    order = Order.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+    ...<11 lines>...
+        payment_ref=payment_result.provider_ref
+    )
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 661, in create
+    obj = self.model(**kwargs)
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 569, in __init__
+    raise TypeError(
+    ...<2 lines>...
+    )
+TypeError: Order() got unexpected keyword arguments: 'payment_ref'
+
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x000002345F681A90>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755291267', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Exception occurred: Order() got unexpected keyword arguments: 'payment_ref'
+DEBUG: Traceback: Traceback (most recent call last):
+  File "C:\projeler\satis_sitesi\shop\views\cart.py", line 260, in checkout_pay
+    order = Order.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+    ...<11 lines>...
+        payment_ref=payment_result.provider_ref
+    )
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 661, in create
+    obj = self.model(**kwargs)
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 569, in __init__
+    raise TypeError(
+    ...<2 lines>...
+    )
+TypeError: Order() got unexpected keyword arguments: 'payment_ref'
+
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x0000023F9F195A90>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755291304', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Exception occurred: Order() got unexpected keyword arguments: 'payment_ref'
+DEBUG: Traceback: Traceback (most recent call last):
+  File "C:\projeler\satis_sitesi\shop\views\cart.py", line 260, in checkout_pay
+    order = Order.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+    ...<11 lines>...
+        payment_ref=payment_result.provider_ref
+    )
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 661, in create
+    obj = self.model(**kwargs)
+  File "C:\Users\Morena\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 569, in __init__
+    raise TypeError(
+    ...<2 lines>...
+    )
+TypeError: Order() got unexpected keyword arguments: 'payment_ref'
+
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x000001EBA0381A90>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755291355', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x000001BF597C9A90>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755291379', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x000002875DC71A90>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755291404', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x0000023FE7502300>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755295169', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x0000022CD8AE65D0>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755295690', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x000002A4DDD515E0>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755296336', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x00000239682846E0>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755297284', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x00000153C49E46E0>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755297554', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x0000013B304006E0>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755298887', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x000002174CB897F0>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755303765', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order
+DEBUG: Starting payment process
+DEBUG: Provider: <payments.provider.MockProvider object at 0x000001E3FF7056A0>
+DEBUG: Totals: {'subtotal': Decimal('100.00'), 'shipping_fee': 49.9, 'total': 149.9}
+DEBUG: Mock payment result: ChargeResult(success=True, provider_ref='MOCK-ORDER-1755303860', message='OK', requires_redirect=False, form_html=None)
+DEBUG: Mock payment successful, creating order

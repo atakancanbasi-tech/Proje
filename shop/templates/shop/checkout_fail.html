@@ -1,0 +1,6 @@
+{% extends "shop/base.html" %}
+{% block title %}Ödeme Başarısız{% endblock %}
+{% block content %}
+  <div class="alert alert-danger my-4">Ödeme başarısız oldu. Lütfen tekrar deneyin.</div>
+  <a class="btn btn-secondary" href="{% url 'shop:checkout' %}">Tekrar Dene</a>
+{% endblock %}

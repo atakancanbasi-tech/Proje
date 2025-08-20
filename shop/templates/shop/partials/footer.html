@@ -1,0 +1,42 @@
+{% load static %}
+{% load img_extras %}
+<footer class="footer mt-5 pt-5 pb-4">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-12 col-lg-4">
+        <h5 class="mb-3">morenavera</h5>
+        <p class="mb-3">Beton biblolar, mumluklar ve saksılarda modern yorum.</p>
+        <div class="d-flex gap-2 flex-wrap">
+          <span class="badge-trust">14 gün iade</span>
+          <span class="badge-trust">Güvenli ödeme</span>
+          <span class="badge-trust">Hızlı kargo</span>
+        </div>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Koleksiyon</h6>
+        <ul class="list-unstyled small">
+          <li><a href="{% url 'shop:product_list' %}?q=mumluk">Mumluk</a></li>
+          <li><a href="{% url 'shop:product_list' %}?q=biblo">Beton Biblo</a></li>
+          <li><a href="{% url 'shop:product_list' %}?q=saksı">Saksı</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Kurumsal</h6>
+        <ul class="list-unstyled small">
+          <li><a href="#">Hakkımızda</a></li>
+          <li><a href="#">Kargo & İade</a></li>
+          <li><a href="#">İletişim</a></li>
+        </ul>
+      </div>
+      <div class="col-12 col-lg-4">
+        <h6>Mini vitrin</h6>
+        <div class="row g-2">
+          <div class="col-4"><img {% img_default_attrs 300 300 %} src="{% static 'img/placeholder-1x1.svg' %}" class="w-100 rounded" alt="Mini vitrin görseli 1"></div>
+          <div class="col-4"><img {% img_default_attrs 300 300 %} src="{% static 'img/placeholder-1x1.svg' %}" class="w-100 rounded" alt="Mini vitrin görseli 2"></div>
+          <div class="col-4"><img {% img_default_attrs 300 300 %} src="{% static 'img/placeholder-1x1.svg' %}" class="w-100 rounded" alt="Mini vitrin görseli 3"></div>
+        </div>
+      </div>
+    </div>
+    <div class="small text-center mt-4">© {{ now|date:"Y" }} morenavera.com — Tüm hakları saklıdır.</div>
+  </div>
+</footer>

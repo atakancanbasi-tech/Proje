@@ -1,0 +1,7 @@
+<svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="600" fill="#f8f9fa"/>
+  <rect x="24" y="24" width="552" height="552" fill="#e9ecef" rx="16"/>
+  <path d="M120 440 L240 300 L340 380 L460 240 L560 440" stroke="#adb5bd" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="220" cy="220" r="44" fill="#ced4da"/>
+  <text x="300" y="520" text-anchor="middle" fill="#868e96" font-family="Arial, sans-serif" font-size="22">1:1 Placeholder</text>
+</svg>

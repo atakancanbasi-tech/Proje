@@ -1,0 +1,560 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Cihaz Detayları - {{ device.device_name|default:device.get_default_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .device-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .device-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+    
+    .trust-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin-left: 15px;
+    }
+    
+    .trust-trusted {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 2px solid #28a745;
+    }
+    
+    .trust-suspicious {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 2px solid #ffc107;
+    }
+    
+    .trust-blocked {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 2px solid #dc3545;
+    }
+    
+    .trust-unknown {
+        background: rgba(108, 117, 125, 0.2);
+        color: #6c757d;
+        border: 2px solid #6c757d;
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .info-value {
+        color: #6c757d;
+    }
+    
+    .session-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-left: 4px solid #007bff;
+    }
+    
+    .session-active {
+        border-left-color: #28a745;
+        background: #f8fff9;
+    }
+    
+    .session-ended {
+        border-left-color: #6c757d;
+        background: #f8f9fa;
+    }
+    
+    .log-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .log-timestamp {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .log-event {
+        font-weight: 600;
+        margin: 5px 0;
+    }
+    
+    .log-details {
+        font-size: 0.9rem;
+        color: #495057;
+    }
+    
+    .risk-score {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .risk-low {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .risk-medium {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .risk-high {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .action-buttons {
+        margin-top: 20px;
+    }
+    
+    .action-buttons .btn {
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #495057;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cihaz Başlığı -->
+    <div class="device-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="text-center text-md-start">
+                    <i class="fas fa-{% if device.device_type == 'mobile' %}mobile-alt{% elif device.device_type == 'tablet' %}tablet-alt{% else %}desktop{% endif %} device-icon"></i>
+                    <h2 class="mb-2">{{ device.device_name|default:device.get_default_name }}</h2>
+                    <p class="mb-0">{{ device.browser_name }} {{ device.browser_version }} - {{ device.os_name }} {{ device.os_version }}</p>
+                    <span class="trust-badge trust-{{ device.trust_level }}">
+                        {{ device.get_trust_level_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="action-buttons text-center text-md-end">
+                    <a href="{% url 'security:session_management' %}" class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left"></i> Geri Dön
+                    </a>
+                    {% if device.trust_level != 'trusted' %}
+                        <button class="btn btn-success" onclick="trustDevice('{{ device.id }}')"></button>
+                            <i class="fas fa-check"></i> Güven
+                        </button>
+                    {% endif %}
+                    {% if device.trust_level != 'blocked' %}
+                        <button class="btn btn-danger" onclick="blockDevice('{{ device.id }}')"></button>
+                            <i class="fas fa-ban"></i> Engelle
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- İstatistikler -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ sessions|length }}</div>
+            <div class="stat-label">Toplam Oturum</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ security_logs|length }}</div>
+            <div class="stat-label">Güvenlik Logu</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ device.login_count }}</div>
+            <div class="stat-label">Giriş Sayısı</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ device.get_days_since_first_seen }}</div>
+            <div class="stat-label">Gün Önce İlk Görüldü</div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Cihaz Bilgileri -->
+        <div class="col-lg-6">
+            <div class="info-card">
+                <h4><i class="fas fa-info-circle"></i> Cihaz Bilgileri</h4>
+                <div class="info-item">
+                    <span class="info-label">Cihaz Türü:</span>
+                    <span class="info-value">{{ device.get_device_type_display }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Tarayıcı:</span>
+                    <span class="info-value">{{ device.browser_name }} {{ device.browser_version }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">İşletim Sistemi:</span>
+                    <span class="info-value">{{ device.os_name }} {{ device.os_version }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Ekran Çözünürlüğü:</span>
+                    <span class="info-value">{{ device.screen_resolution|default:"Bilinmiyor" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Güven Seviyesi:</span>
+                    <span class="trust-badge trust-{{ device.trust_level }}">{{ device.get_trust_level_display }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">İlk Görülme:</span>
+                    <span class="info-value">{{ device.first_seen|date:"d.m.Y H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Son Görülme:</span>
+                    <span class="info-value">{{ device.last_seen|date:"d.m.Y H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Son IP Adresi:</span>
+                    <span class="info-value"><code>{{ device.last_ip|default:"Bilinmiyor" }}</code></span>
+                </div>
+                {% if device.last_location %}
+                <div class="info-item">
+                    <span class="info-label">Son Konum:</span>
+                    <span class="info-value">
+                        <i class="fas fa-map-marker-alt"></i> 
+                        {{ device.last_location.city|default:"Bilinmeyen" }}, {{ device.last_location.country|default:"Bilinmeyen" }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Güvenlik Bilgileri -->
+        <div class="col-lg-6">
+            <div class="info-card">
+                <h4><i class="fas fa-shield-alt"></i> Güvenlik Bilgileri</h4>
+                <div class="info-item">
+                    <span class="info-label">Cihaz Parmak İzi:</span>
+                    <span class="info-value"><code>{{ device.device_fingerprint|truncatechars:20 }}...</code></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Giriş Sayısı:</span>
+                    <span class="info-value">{{ device.login_count }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Başarısız Giriş:</span>
+                    <span class="info-value">{{ device.failed_login_count }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Şüpheli Aktivite:</span>
+                    <span class="info-value">{{ device.suspicious_activity_count }}</span>
+                </div>
+                {% if device.is_new_device %}
+                <div class="info-item">
+                    <span class="info-label">Durum:</span>
+                    <span class="info-value">
+                        <span class="badge bg-warning">Yeni Cihaz</span>
+                    </span>
+                </div>
+                {% endif %}
+                {% if device.blocked_at %}
+                <div class="info-item">
+                    <span class="info-label">Engellenme Tarihi:</span>
+                    <span class="info-value">{{ device.blocked_at|date:"d.m.Y H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Engellenme Sebebi:</span>
+                    <span class="info-value">{{ device.blocked_reason|default:"Belirtilmemiş" }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs" id="deviceTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="sessions-tab" data-bs-toggle="tab" data-bs-target="#sessions" type="button" role="tab">
+                <i class="fas fa-clock"></i> Oturum Geçmişi ({{ sessions|length }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs" type="button" role="tab">
+                <i class="fas fa-list"></i> Güvenlik Logları ({{ security_logs|length }})
+            </button>
+        </li>
+    </ul>
+    
+    <div class="tab-content" id="deviceTabContent">
+        <!-- Oturum Geçmişi -->
+        <div class="tab-pane fade show active" id="sessions" role="tabpanel">
+            <div class="mt-3">
+                {% if sessions %}
+                    {% for session in sessions %}
+                    <div class="session-item {% if session.is_active %}session-active{% else %}session-ended{% endif %}">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-{% if session.is_active %}circle text-success{% else %}circle text-secondary{% endif %} me-2"></i>
+                                    <h6 class="mb-0">
+                                        {% if session.is_active %}
+                                            Aktif Oturum
+                                        {% else %}
+                                            Sonlanmış Oturum
+                                        {% endif %}
+                                    </h6>
+                                    {% if session.is_suspicious %}
+                                        <span class="badge bg-warning ms-2">Şüpheli</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <small class="text-muted">IP Adresi:</small><br>
+                                        <code>{{ session.ip_address }}</code>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <small class="text-muted">Başlangıç:</small><br>
+                                        {{ session.created_at|date:"d.m.Y H:i" }}
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-2">
+                                    <div class="col-sm-6">
+                                        <small class="text-muted">Son Aktivite:</small><br>
+                                        {{ session.last_activity|date:"d.m.Y H:i" }}
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <small class="text-muted">Risk Skoru:</small><br>
+                                        <span class="risk-score {% if session.risk_score < 30 %}risk-low{% elif session.risk_score < 70 %}risk-medium{% else %}risk-high{% endif %}">
+                                            {{ session.risk_score }}/100
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4 text-end">
+                                <a href="{% url 'security:session_detail' session.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> Detaylar
+                                </a>
+                                {% if session.is_active %}
+                                    <button class="btn btn-outline-danger btn-sm" onclick="endSession('{{ session.id }}')"></button>
+                                        <i class="fas fa-sign-out-alt"></i> Sonlandır
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle"></i> Bu cihaz için oturum geçmişi bulunamadı.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Güvenlik Logları -->
+        <div class="tab-pane fade" id="logs" role="tabpanel">
+            <div class="mt-3">
+                {% if security_logs %}
+                    {% for log in security_logs %}
+                    <div class="log-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="log-timestamp">{{ log.created_at|date:"d.m.Y H:i:s" }}</div>
+                                <div class="log-event">{{ log.get_event_type_display }}</div>
+                                {% if log.details %}
+                                    <div class="log-details">{{ log.details }}</div>
+                                {% endif %}
+                                {% if log.ip_address %}
+                                    <small class="text-muted">IP: <code>{{ log.ip_address }}</code></small>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {% if log.risk_level %}
+                                    <span class="badge bg-{% if log.risk_level == 'high' %}danger{% elif log.risk_level == 'medium' %}warning{% else %}info{% endif %}">
+                                        {{ log.get_risk_level_display }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle"></i> Bu cihaz için güvenlik logu bulunamadı.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function trustDevice(deviceId, csrfToken) {
+    if (confirm('Bu cihazı güvenilir olarak işaretlemek istediğinizden emin misiniz?')) {
+        fetch(`/security/devices/${deviceId}/trust/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showAlert('danger', data.error);
+            }
+        })
+        .catch(error => {
+            showAlert('danger', 'Bir hata oluştu: ' + error.message);
+        });
+    }
+}
+
+function blockDevice(deviceId, csrfToken) {
+    if (confirm('Bu cihazı engellemek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+        const reason = prompt('Engelleme sebebi (isteğe bağlı):') || 'Kullanıcı tarafından engellendi';
+        
+        const formData = new FormData();
+        formData.append('reason', reason);
+        
+        fetch(`/security/devices/${deviceId}/block/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showAlert('danger', data.error);
+            }
+        })
+        .catch(error => {
+            showAlert('danger', 'Bir hata oluştu: ' + error.message);
+        });
+    }
+}
+
+function endSession(sessionId, csrfToken) {
+    if (confirm('Bu oturumu sonlandırmak istediğinizden emin misiniz?')) {
+        fetch(`/security/sessions/${sessionId}/end/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showAlert('danger', data.error);
+            }
+        })
+        .catch(error => {
+            showAlert('danger', 'Bir hata oluştu: ' + error.message);
+        });
+    }
+}
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container-fluid');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

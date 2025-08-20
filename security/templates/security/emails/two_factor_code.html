@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İki Faktörlü Kimlik Doğrulama Kodu</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .title {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        .code-container {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        .code {
+            font-size: 36px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .code-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .expiry {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 15px;
+        }
+        .content {
+            margin: 25px 0;
+            line-height: 1.8;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .warning-icon {
+            color: #856404;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .security-tips {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #17a2b8;
+        }
+        .tips-title {
+            color: #0c5460;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .tips-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .tips-list li {
+            margin-bottom: 8px;
+            color: #0c5460;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .contact-info {
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 15px 0;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+            }
+            .code {
+                font-size: 28px;
+                letter-spacing: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🛡️ {{ site_name|default:"Güvenli Alışveriş" }}</div>
+            <h1 class="title">İki Faktörlü Kimlik Doğrulama</h1>
+        </div>
+
+        <div class="content">
+            <p>Merhaba <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+            
+            <p>Hesabınıza giriş yapmak için aşağıdaki doğrulama kodunu kullanın:</p>
+        </div>
+
+        <div class="code-container">
+            <div class="code-label">DOĞRULAMA KODU</div>
+            <div class="code">{{ code }}</div>
+            <div class="expiry">⏰ Bu kod {{ expiry_minutes }} dakika geçerlidir</div>
+        </div>
+
+        <div class="content">
+            <p>Bu kodu giriş sayfasındaki "Doğrulama Kodu" alanına girin ve "Doğrula" butonuna tıklayın.</p>
+            
+            <p><strong>Giriş Detayları:</strong></p>
+            <ul>
+                <li><strong>Tarih/Saat:</strong> {{ timestamp|date:"d.m.Y H:i" }}</li>
+                <li><strong>IP Adresi:</strong> {{ ip_address }}</li>
+                <li><strong>Cihaz:</strong> {{ user_agent|truncatechars:50 }}</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <span class="warning-icon">⚠️</span>
+            <strong>Önemli:</strong> Bu kodu kimseyle paylaşmayın! Eğer bu giriş denemesi size ait değilse, derhal şifrenizi değiştirin ve bizimle iletişime geçin.
+        </div>
+
+        <div class="security-tips">
+            <div class="tips-title">🔒 Güvenlik İpuçları:</div>
+            <ul class="tips-list">
+                <li>Bu e-postayı aldıktan sonra hemen kodu kullanın</li>
+                <li>Kodu başkalarıyla paylaşmayın</li>
+                <li>Şüpheli aktivite fark ederseniz hesabınızı kontrol edin</li>
+                <li>Güvenlik ayarlarınızı düzenli olarak gözden geçirin</li>
+                <li>Güçlü ve benzersiz şifreler kullanın</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <p>Herhangi bir sorunuz varsa veya yardıma ihtiyacınız varsa, lütfen bizimle iletişime geçin.</p>
+        </div>
+
+        <div class="footer">
+            <p><strong>{{ site_name|default:"Güvenli Alışveriş" }}</strong></p>
+            <p>Bu e-posta otomatik olarak gönderilmiştir, lütfen yanıtlamayın.</p>
+            
+            <div class="contact-info">
+                <p>📧 Destek: support@example.com | 📞 Telefon: +90 (212) 123 45 67</p>
+                <p>🌐 Web: www.example.com | 📍 Adres: İstanbul, Türkiye</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

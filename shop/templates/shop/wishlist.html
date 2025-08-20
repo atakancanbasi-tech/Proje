@@ -1,0 +1,132 @@
+{% extends "shop/base.html" %}
+{% load money i18n humanize l10n %}
+{% load img_extras %}
+{% block title %}İstek Listem{% endblock %}
+{% block content %}
+  <div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1><i class="fas fa-heart text-danger"></i> İstek Listem</h1>
+      <a href="{% url 'shop:product_list' %}" class="btn btn-outline-primary">
+        <i class="fas fa-shopping-bag"></i> Alışverişe Devam Et
+      </a>
+    </div>
+    
+    {% if wishlist_items %}
+      <div class="row">
+        {% for item in wishlist_items %}
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+              {% if item.product.image %}
+                <img {% img_default_attrs 300 200 %} src="{{ item.product.image.url }}" class="card-img-top img-cover" alt="{{ item.product.name }}">
+              {% else %}
+                <img src="{% static 'img/product-placeholder.svg' %}" class="card-img-top" alt="Ürün görseli" width="300" height="200" decoding="async" loading="lazy">
+              {% endif %}
+              
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">
+                  <a href="{% url 'shop:product_detail' item.product.pk %}" class="text-decoration-none">{{ item.product.name }}</a>
+                </h5>
+                
+                <p class="text-muted mb-1">{{ item.product.category }}</p>
+                <p class="fs-5 fw-bold text-primary mb-2">₺ {{ item.product.price|localize }}</p>
+                
+                <!-- Yıldız Puanı -->
+                {% if item.product.average_rating > 0 %}
+                  <div class="d-flex align-items-center mb-2">
+                    <div class="stars me-2">
+                      {% for i in "12345" %}
+                        {% if forloop.counter <= item.product.average_rating %}
+                          <i class="fas fa-star text-warning" style="font-size: 0.9rem;"></i>
+                        {% else %}
+                          <i class="far fa-star text-muted" style="font-size: 0.9rem;"></i>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    <small class="text-muted">({{ item.product.review_count }})</small>
+                  </div>
+                {% else %}
+                  <div class="mb-2">
+                    <small class="text-muted">Henüz değerlendirilmemiş</small>
+                  </div>
+                {% endif %}
+                
+                <!-- Stok Durumu -->
+                <div class="mb-3">
+                  {% if item.product.is_in_stock %}
+                    <span class="badge bg-success">Stokta</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Stok Yok</span>
+                  {% endif %}
+                </div>
+                
+                <!-- Eklenme Tarihi -->
+                <small class="text-muted mb-3">{{ item.created_at|date:"j F Y" }} tarihinde eklendi</small>
+                
+                <!-- Butonlar -->
+                <div class="mt-auto">
+                  <div class="d-grid gap-2">
+                    <a href="{% url 'shop:add_to_cart' product_id=item.product.pk %}" class="btn btn-primary" {% if not item.product.is_in_stock %}disabled{% endif %}>
+                      <i class="fas fa-shopping-cart"></i> Sepete Ekle
+                    </a>
+                    <div class="d-flex gap-2">
+                      <a href="{% url 'shop:product_detail' item.product.pk %}" class="btn btn-outline-info flex-fill">
+                        <i class="fas fa-eye"></i> İncele
+                      </a>
+                      <a href="{% url 'shop:remove_from_wishlist' item.product.pk %}" class="btn btn-outline-danger flex-fill" 
+                         onclick="return confirm('Bu ürünü istek listenizden çıkarmak istediğinizden emin misiniz?')">
+                        <i class="fas fa-trash"></i> Çıkar
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      
+      <!-- İstatistikler -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <strong>{{ wishlist_items.count }}</strong> ürün istek listenizde bulunuyor.
+          </div>
+        </div>
+      </div>
+      
+    {% else %}
+      <!-- Boş İstek Listesi -->
+      <div class="text-center py-5">
+        <div class="mb-4">
+          <i class="far fa-heart" style="font-size: 4rem; color: #dee2e6;"></i>
+        </div>
+        <h3 class="text-muted mb-3">İstek listeniz boş</h3>
+        <p class="text-muted mb-4">Beğendiğiniz ürünleri istek listenize ekleyerek daha sonra kolayca bulabilirsiniz.</p>
+        <a href="{% url 'shop:product_list' %}" class="btn btn-primary btn-lg">
+          <i class="fas fa-shopping-bag"></i> Alışverişe Başla
+        </a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.stars i {
+  font-size: 1rem;
+}
+
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.btn {
+  transition: all 0.2s ease-in-out;
+}
+</style>
+{% endblock %}

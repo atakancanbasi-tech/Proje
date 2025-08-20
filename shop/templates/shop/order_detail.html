@@ -1,0 +1,188 @@
+{% extends 'shop/base.html' %}
+{% load shop_extras i18n humanize l10n %}
+{% load img_extras %}
+
+{% block title %}Sipariş Detayı #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-receipt me-2"></i>Sipariş Detayı #{{ order.id }}</h2>
+                <div>
+                    <a href="{% url 'shop:my_orders' %}" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-arrow-left me-2"></i>Siparişlerime Dön
+                    </a>
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-shopping-cart me-2"></i>Alışverişe Devam
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Sipariş Bilgileri -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Sipariş Bilgileri</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Sipariş No:</strong></div>
+                                <div class="col-8">#{{ order.id }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Tarih:</strong></div>
+                                <div class="col-8">{{ order.created_at|date:"d.m.Y H:i" }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Durum:</strong></div>
+                                <div class="col-8">
+                                    {% if order.status == 'pending' %}
+                                        <span class="badge bg-warning">Beklemede</span>
+                                    {% elif order.status == 'processing' %}
+                                        <span class="badge bg-info">İşleniyor</span>
+                                    {% elif order.status == 'shipped' %}
+                                        <span class="badge bg-primary">Kargoda</span>
+                                    {% elif order.status == 'delivered' %}
+                                        <span class="badge bg-success">Teslim Edildi</span>
+                                    {% elif order.status == 'cancelled' %}
+                                        <span class="badge bg-danger">İptal Edildi</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Toplam:</strong></div>
+                                <div class="col-8"><strong class="text-success">{{ order.total|money }} TL</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teslimat Bilgileri ve Durum Geçmişi Sağ Sütunda -->
+                <div class="col-md-6 mb-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-truck me-2"></i>Teslimat Bilgileri</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Ad Soyad:</strong></div>
+                                <div class="col-8">{{ order.fullname }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>E-posta:</strong></div>
+                                <div class="col-8">{{ order.email }}</div>
+                            </div>
+                            {% if order.phone %}
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Telefon:</strong></div>
+                                <div class="col-8">{{ order.phone }}</div>
+                            </div>
+                            {% endif %}
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Adres:</strong></div>
+                                <div class="col-8">{{ order.address }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Şehir:</strong></div>
+                                <div class="col-8">{{ order.city }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Posta Kodu:</strong></div>
+                                <div class="col-8">{{ order.postal_code }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>Durum Geçmişi</strong>
+                        </div>
+                        <div class="card-body">
+                            {% if order.status_history.all %}
+                                <ul class="list-group list-group-flush">
+                                    {% for h in order.status_history.all %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="me-auto">
+                                            <div class="fw-semibold">{{ h.from_status|default:"—" }} → {{ h.to_status }}</div>
+                                            <small class="text-muted">
+                                                {% if h.changed_by %}{{ h.changed_by.get_username }} · {% endif %}
+                                                {{ h.created_at|date:"j F Y H:i" }}
+                                            </small>
+                                            {% if h.note %}<div class="small mt-1">{{ h.note }}</div>{% endif %}
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted mb-0">Henüz bir durum geçmişi bulunmuyor.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sipariş Ürünleri -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-box me-2"></i>Sipariş Ürünleri</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Ürün</th>
+                                            <th>Birim Fiyat</th>
+                                            <th>Adet</th>
+                                            <th class="text-end">Toplam</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in order_items %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        {% if item.product.image %}
+                                                            <img {% img_default_attrs 300 200 %} src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                                        {% endif %}
+                                                        <div>
+                                                            <h6 class="mb-0">{{ item.product.name }}</h6>
+                                                            <small class="text-muted">{{ item.product.category.name }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>₺ {{ item.unit_price|localize }}</td>
+                                                <td>
+                                                    <span class="badge bg-secondary">{{ item.quantity }} adet</span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <strong>₺ {{ item.line_total|localize }}</strong>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot class="table-light">
+                                        <tr>
+                                            <th colspan="3" class="text-end">Genel Toplam:</th>
+                                            <th class="text-end">
+                                                <strong class="text-success fs-5">{{ order.total|money }} TL</strong>
+                                            </th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

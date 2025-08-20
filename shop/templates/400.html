@@ -1,0 +1,10 @@
+{% extends "shop/base.html" %}
+{% block title %}Geçersiz İstek (400){% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h1 class="h3 mb-3">Geçersiz istek</h1>
+    <p class="text-muted">İsteğiniz işlenemedi. Lütfen geri dönüp tekrar deneyin.</p>
+    <a class="btn btn-primary" href="{% url 'shop:product_list' %}">Ana sayfaya dön</a>
+    {% block head_extra %}{% endblock %}
+</div>
+{% endblock %}

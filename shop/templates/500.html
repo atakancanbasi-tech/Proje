@@ -1,0 +1,9 @@
+{% extends "shop/base.html" %}
+{% block title %}Sunucu hatası (500){% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+  <h1 class="display-6 mb-3">Bir şeyler ters gitti</h1>
+  <p class="text-muted mb-4">Kısa süre sonra tekrar deneyin. Sorun devam ederse bize ulaşın.</p>
+  <a class="btn btn-brand" href="{% url 'shop:product_list' %}">Ana sayfaya dön</a>
+</div>
+{% endblock %}

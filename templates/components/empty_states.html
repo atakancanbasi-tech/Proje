@@ -1,0 +1,185 @@
+<!-- Empty Cart State -->
+<div class="empty-state empty-cart" id="empty-cart">
+    <i class="fas fa-shopping-cart empty-state-icon" aria-hidden="true"></i>
+    <h3 class="empty-state-title">Sepetiniz Boş</h3>
+    <p class="empty-state-description">
+        Henüz sepetinize ürün eklemediniz. Alışverişe başlamak için ürünlerimizi keşfedin.
+    </p>
+    <div class="empty-state-action">
+        <a href="{% url 'shop:product_list' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-shopping-bag me-2" aria-hidden="true"></i>
+            Alışverişe Başla
+        </a>
+    </div>
+</div>
+
+<!-- Empty Products State -->
+<div class="empty-state empty-products" id="empty-products" style="display: none;">
+    <i class="fas fa-box-open empty-state-icon" aria-hidden="true"></i>
+    <h3 class="empty-state-title">Ürün Bulunamadı</h3>
+    <p class="empty-state-description">
+        Aradığınız kriterlere uygun ürün bulunamadı. Farklı kategorileri keşfetmeyi deneyin.
+    </p>
+    <div class="empty-state-action">
+        <a href="{% url 'shop:product_list' %}" class="btn btn-warning btn-lg">
+            <i class="fas fa-th-large me-2" aria-hidden="true"></i>
+            Tüm Ürünleri Görüntüle
+        </a>
+    </div>
+</div>
+
+<!-- Empty Search Results State -->
+<div class="empty-state empty-search" id="empty-search" style="display: none;">
+    <i class="fas fa-search empty-state-icon" aria-hidden="true"></i>
+    <h3 class="empty-state-title">Arama Sonucu Bulunamadı</h3>
+    <p class="empty-state-description">
+        "<span id="search-term"></span>" için sonuç bulunamadı. Farklı anahtar kelimeler deneyebilirsiniz.
+    </p>
+    <div class="empty-state-action">
+        <button type="button" class="btn btn-info btn-lg" onclick="clearSearch()">
+            <i class="fas fa-times me-2" aria-hidden="true"></i>
+            Aramayı Temizle
+        </button>
+        <a href="{% url 'shop:product_list' %}" class="btn btn-outline-info btn-lg ms-2">
+            <i class="fas fa-home me-2" aria-hidden="true"></i>
+            Ana Sayfaya Dön
+        </a>
+    </div>
+</div>
+
+<!-- Empty Orders State -->
+<div class="empty-state empty-orders" id="empty-orders" style="display: none;">
+    <i class="fas fa-receipt empty-state-icon" aria-hidden="true"></i>
+    <h3 class="empty-state-title">Henüz Siparişiniz Yok</h3>
+    <p class="empty-state-description">
+        Henüz hiç sipariş vermediniz. İlk siparişinizi vermek için ürünlerimizi keşfedin.
+    </p>
+    <div class="empty-state-action">
+        <a href="{% url 'shop:product_list' %}" class="btn btn-danger btn-lg">
+            <i class="fas fa-shopping-cart me-2" aria-hidden="true"></i>
+            Alışverişe Başla
+        </a>
+    </div>
+</div>
+
+<!-- Loading States -->
+<div class="loading-overlay" id="loading-overlay" style="display: none;" role="status" aria-live="polite">
+    <div class="text-center">
+        <div class="loading-spinner loading-spinner-lg" aria-hidden="true"></div>
+        <p class="mt-3 mb-0">Yükleniyor...</p>
+        <span class="visually-hidden">İçerik yükleniyor, lütfen bekleyin</span>
+    </div>
+</div>
+
+<!-- Skeleton Loading Templates -->
+<div class="skeleton-card" id="skeleton-product" style="display: none;">
+    <div class="skeleton skeleton-image"></div>
+    <div class="skeleton skeleton-title"></div>
+    <div class="skeleton skeleton-text"></div>
+    <div class="skeleton skeleton-text"></div>
+    <div class="skeleton skeleton-text"></div>
+</div>
+
+<div class="skeleton-card" id="skeleton-order" style="display: none;">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="skeleton skeleton-image" style="height: 100px;"></div>
+        </div>
+        <div class="col-md-9">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Empty state utility functions
+function showEmptyState(type, searchTerm = '') {
+    // Hide all empty states first
+    document.querySelectorAll('.empty-state').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Show specific empty state
+    const emptyState = document.getElementById(`empty-${type}`);
+    if (emptyState) {
+        emptyState.style.display = 'block';
+        
+        // Update search term if provided
+        if (type === 'search' && searchTerm) {
+            const searchTermEl = document.getElementById('search-term');
+            if (searchTermEl) {
+                searchTermEl.textContent = searchTerm;
+            }
+        }
+        
+        // Focus management for accessibility
+        const title = emptyState.querySelector('.empty-state-title');
+        if (title) {
+            title.focus();
+        }
+    }
+}
+
+function hideEmptyStates() {
+    document.querySelectorAll('.empty-state').forEach(el => {
+        el.style.display = 'none';
+    });
+}
+
+function showLoadingOverlay() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function hideLoadingOverlay() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+function showSkeletonLoading(container, type = 'product', count = 3) {
+    const skeletonTemplate = document.getElementById(`skeleton-${type}`);
+    if (!skeletonTemplate || !container) return;
+    
+    container.innerHTML = '';
+    
+    for (let i = 0; i < count; i++) {
+        const skeleton = skeletonTemplate.cloneNode(true);
+        skeleton.id = `skeleton-${type}-${i}`;
+        skeleton.style.display = 'block';
+        container.appendChild(skeleton);
+    }
+}
+
+function clearSearch() {
+    const searchInput = document.querySelector('input[name="q"]');
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+    }
+    hideEmptyStates();
+}
+
+// Auto-hide loading overlay after 10 seconds (fallback)
+let loadingTimeout;
+function showLoadingWithTimeout() {
+    showLoadingOverlay();
+    clearTimeout(loadingTimeout);
+    loadingTimeout = setTimeout(() => {
+        hideLoadingOverlay();
+        console.warn('Loading overlay auto-hidden after timeout');
+    }, 10000);
+}
+
+function hideLoadingWithTimeout() {
+    clearTimeout(loadingTimeout);
+    hideLoadingOverlay();
+}
+</script>

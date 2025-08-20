@@ -1,0 +1,465 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Oturum Detayları - {{ session.session_key|truncatechars:10 }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .session-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .session-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+    
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin-left: 15px;
+    }
+    
+    .status-active {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 2px solid #28a745;
+    }
+    
+    .status-ended {
+        background: rgba(108, 117, 125, 0.2);
+        color: #6c757d;
+        border: 2px solid #6c757d;
+    }
+    
+    .status-suspicious {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 2px solid #ffc107;
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .info-value {
+        color: #6c757d;
+    }
+    
+    .log-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .log-timestamp {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .log-event {
+        font-weight: 600;
+        margin: 5px 0;
+    }
+    
+    .log-details {
+        font-size: 0.9rem;
+        color: #495057;
+    }
+    
+    .risk-score {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .risk-low {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .risk-medium {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .risk-high {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .action-buttons {
+        margin-top: 20px;
+    }
+    
+    .action-buttons .btn {
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #495057;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    
+    .device-link {
+        color: #007bff;
+        text-decoration: none;
+    }
+    
+    .device-link:hover {
+        text-decoration: underline;
+    }
+    
+    .location-info {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .session-timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .session-timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e9ecef;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -25px;
+        top: 5px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Oturum Başlığı -->
+    <div class="session-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="text-center text-md-start">
+                    <i class="fas fa-{% if session.session_type == 'mobile' %}mobile-alt{% elif session.session_type == 'tablet' %}tablet-alt{% else %}desktop{% endif %} session-icon"></i>
+                    <h2 class="mb-2">Oturum Detayları</h2>
+                    <p class="mb-0">{{ session.get_session_type_display }} - {{ session.ip_address }}</p>
+                    <span class="status-badge {% if session.is_active %}status-active{% elif session.is_suspicious %}status-suspicious{% else %}status-ended{% endif %}">
+                        {% if session.is_active %}
+                            Aktif Oturum
+                        {% elif session.is_suspicious %}
+                            Şüpheli Oturum
+                        {% else %}
+                            Sonlanmış Oturum
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="action-buttons text-center text-md-end">
+                    <a href="{% url 'security:session_management' %}" class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left"></i> Geri Dön
+                    </a>
+                    {% if session.is_active %}
+                        <button class="btn btn-danger" onclick="endSession('{{ session.id }}')"></button>
+                            <i class="fas fa-sign-out-alt"></i> Oturumu Sonlandır
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- İstatistikler -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ session.get_duration_hours }}</div>
+            <div class="stat-label">Saat Aktif</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ session.risk_score }}</div>
+            <div class="stat-label">Risk Skoru</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ security_logs|length }}</div>
+            <div class="stat-label">Güvenlik Logu</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ session.get_days_since_created }}</div>
+            <div class="stat-label">Gün Önce Başladı</div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Oturum Bilgileri -->
+        <div class="col-lg-6">
+            <div class="info-card">
+                <h4><i class="fas fa-info-circle"></i> Oturum Bilgileri</h4>
+                <div class="info-item">
+                    <span class="info-label">Oturum Anahtarı:</span>
+                    <span class="info-value"><code>{{ session.session_key|truncatechars:20 }}...</code></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Oturum Türü:</span>
+                    <span class="info-value">{{ session.get_session_type_display }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">IP Adresi:</span>
+                    <span class="info-value"><code>{{ session.ip_address }}</code></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Kullanıcı Aracısı:</span>
+                    <span class="info-value">{{ session.user_agent|truncatechars:50 }}</span>
+                </div>
+                {% if session.location_data %}
+                <div class="info-item">
+                    <span class="info-label">Konum:</span>
+                    <span class="info-value">
+                        <i class="fas fa-map-marker-alt"></i> 
+                        {{ session.location_data.city|default:"Bilinmeyen" }}, {{ session.location_data.country|default:"Bilinmeyen" }}
+                    </span>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <span class="info-label">Başlangıç Zamanı:</span>
+                    <span class="info-value">{{ session.created_at|date:"d.m.Y H:i:s" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Son Aktivite:</span>
+                    <span class="info-value">{{ session.last_activity|date:"d.m.Y H:i:s" }}</span>
+                </div>
+                {% if not session.is_active %}
+                <div class="info-item">
+                    <span class="info-label">Bitiş Zamanı:</span>
+                    <span class="info-value">{{ session.ended_at|date:"d.m.Y H:i:s"|default:"Bilinmiyor" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Bitiş Sebebi:</span>
+                    <span class="info-value">{{ session.get_end_reason_display|default:"Belirtilmemiş" }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Güvenlik ve Cihaz Bilgileri -->
+        <div class="col-lg-6">
+            <div class="info-card">
+                <h4><i class="fas fa-shield-alt"></i> Güvenlik Bilgileri</h4>
+                <div class="info-item">
+                    <span class="info-label">Cihaz Parmak İzi:</span>
+                    <span class="info-value"><code>{{ session.device_fingerprint|truncatechars:20 }}...</code></span>
+                </div>
+                {% if device %}
+                <div class="info-item">
+                    <span class="info-label">Cihaz:</span>
+                    <span class="info-value">
+                        <a href="{% url 'security:device_detail' device.id %}" class="device-link">
+                            {{ device.device_name|default:device.get_default_name }}
+                        </a>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Cihaz Güven Seviyesi:</span>
+                    <span class="info-value">
+                        <span class="badge bg-{% if device.trust_level == 'trusted' %}success{% elif device.trust_level == 'suspicious' %}warning{% elif device.trust_level == 'blocked' %}danger{% else %}secondary{% endif %}">
+                            {{ device.get_trust_level_display }}
+                        </span>
+                    </span>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <span class="info-label">Risk Skoru:</span>
+                    <span class="info-value">
+                        <span class="risk-score {% if session.risk_score < 30 %}risk-low{% elif session.risk_score < 70 %}risk-medium{% else %}risk-high{% endif %}">
+                            {{ session.risk_score }}/100
+                        </span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Durum:</span>
+                    <span class="info-value">
+                        {% if session.is_active %}
+                            <span class="badge bg-success">Aktif</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Sonlanmış</span>
+                        {% endif %}
+                        {% if session.is_suspicious %}
+                            <span class="badge bg-warning ms-1">Şüpheli</span>
+                        {% endif %}
+                    </span>
+                </div>
+                {% if session.suspicious_reason %}
+                <div class="info-item">
+                    <span class="info-label">Şüphe Sebebi:</span>
+                    <span class="info-value">{{ session.suspicious_reason }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Güvenlik Logları -->
+    <div class="info-card">
+        <h4><i class="fas fa-list"></i> Güvenlik Logları ({{ security_logs|length }})</h4>
+        {% if security_logs %}
+            <div class="session-timeline">
+                {% for log in security_logs %}
+                <div class="timeline-item">
+                    <div class="log-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="log-timestamp">{{ log.created_at|date:"d.m.Y H:i:s" }}</div>
+                                <div class="log-event">{{ log.get_event_type_display }}</div>
+                                {% if log.details %}
+                                    <div class="log-details">{{ log.details }}</div>
+                                {% endif %}
+                                {% if log.ip_address and log.ip_address != session.ip_address %}
+                                    <small class="text-muted">IP: <code>{{ log.ip_address }}</code></small>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {% if log.risk_level %}
+                                    <span class="badge bg-{% if log.risk_level == 'high' %}danger{% elif log.risk_level == 'medium' %}warning{% else %}info{% endif %}">
+                                        {{ log.get_risk_level_display }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Bu oturum için güvenlik logu bulunamadı.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function endSession(sessionId, csrfToken) {
+    if (confirm('Bu oturumu sonlandırmak istediğinizden emin misiniz?')) {
+        fetch(`/security/sessions/${sessionId}/end/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showAlert('danger', data.error);
+            }
+        })
+        .catch(error => {
+            showAlert('danger', 'Bir hata oluştu: ' + error.message);
+        });
+    }
+}
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container-fluid');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

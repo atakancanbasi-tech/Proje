@@ -1,0 +1,186 @@
+{% load static money i18n humanize l10n %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Mağaza{% endblock %}</title>
+  <meta name="description" content="{% block description %}En kaliteli ürünler, uygun fiyatlar{% endblock %}">
+  <meta property="og:locale" content="tr_TR">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{% block og_title %}Mağaza{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Modern ve güvenli e-ticaret deneyimi{% endblock %}">
+  <meta property="og:image" content="{% static 'img/og-home.svg' %}">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Premium type -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Önce tema token'ları, sonra ana stil -->
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="bg-light-subtle">
+  <a class="visually-hidden-focusable position-absolute top-0 start-0 p-2" href="#main">İçeriğe geç</a>
+
+  {# mevcut header yapınız #}
+  {% include "shop/partials/header.html" %}
+
+  {# premium header #}
+  {% include "shop/partials/_site_header.html" %}
+  {% include "shop/partials/category_bar.html" %}
+
+  <main id="main" class="pb-5">
+    <div class="container my-4">
+    {% block page_title %}{% endblock %}
+    {% if messages %}
+      <div class="mb-3">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'secondary' }}" role="alert">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+    </div>
+  </main>
+  
+  <!-- footer açılış satırı -->
+  <footer class="mt-5 pt-5 border-top" style="background:var(--ivory-100)">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-12 col-lg-4">
+          <h5 class="mb-2">morenavera.com</h5>
+          <p class="text-muted">Beton biblolar, mumluklar ve saksılarla mekânlarınıza sıcak, doğal dokunuşlar.</p>
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-brand btn-sm" href="#" aria-label="Instagram">IG</a>
+            <a class="btn btn-outline-brand btn-sm" href="#" aria-label="Pinterest">PI</a>
+            <a class="btn btn-outline-brand btn-sm" href="#" aria-label="Facebook">FB</a>
+          </div>
+        </div>
+        <div class="col-6 col-lg-2">
+          <h6 class="text-muted">Mağaza</h6>
+          <ul class="list-unstyled mb-0">
+            <li><a class="mega-link" href="{% url 'shop:product_list' %}">Tüm Ürünler</a></li>
+            <li><a class="mega-link" href="{% url 'shop:product_list' %}?sort=new">Yeni Gelenler</a></li>
+            <li><a class="mega-link" href="{% url 'shop:product_list' %}?sort=popular">Popüler</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-lg-2">
+          <h6 class="text-muted">Destek</h6>
+          <ul class="list-unstyled mb-0">
+            <li><a class="mega-link" href="/shipping/">Kargo</a></li>
+            <li><a class="mega-link" href="/returns/">İade</a></li>
+            <li><a class="mega-link" href="/contact/">İletişim</a></li>
+          </ul>
+        </div>
+        <div class="col-12 col-lg-4">
+          <h6 class="text-muted">Bülten</h6>
+          <form class="d-flex gap-2" action="#" method="post">
+            {% csrf_token %}
+            <input type="email" name="email" class="form-control" placeholder="E-posta adresiniz" required>
+            <button class="btn btn-brand">Katıl</button>
+          </form>
+          <small class="text-muted d-block mt-2">Haftalık ilham & fırsatlar. İstediğiniz zaman ayrılabilirsiniz.</small>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-4 py-3 border-top" style="border-top-color:rgba(15,23,42,.06)!important">
+        <span class="text-muted">© {{ now|date:"Y" }} MorenaVera</span>
+        <div class="d-flex gap-3 small">
+          <a class="text-muted text-decoration-none mega-link" href="/privacy/">Gizlilik</a>
+          <a class="text-muted text-decoration-none mega-link" href="/terms/">Koşullar</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <script src="{% static 'js/ui.js' %}" defer></script>
+  <script>
+    // renk swatch seçimi (dummy)
+    document.addEventListener('click', function(e){
+      const b = e.target.closest('.swatch'); if(!b) return;
+      const wrap = b.closest('.swatches'); wrap.querySelectorAll('.swatch').forEach(x=>x.classList.remove('is-active'));
+      b.classList.add('is-active');
+    });
+    // mega menu: hover (lg ve üstü), click (mobil)
+    (function(){
+      const nav = document.getElementById('navMega'); if(!nav) return;
+      const panel = document.getElementById('megaPanel');
+      const mq = window.matchMedia('(min-width: 992px)');
+      function open(){ panel.style.display='block'; }
+      function close(){ panel.style.display='none'; }
+      if(mq.matches){
+        nav.addEventListener('mouseenter', open);
+        nav.addEventListener('mouseleave', close);
+      }else{
+        document.getElementById('megaToggle').addEventListener('click', function(ev){
+          ev.preventDefault(); panel.style.display = panel.style.display==='block' ? 'none':'block';
+        });
+        document.addEventListener('click', function(e){
+          if(!nav.contains(e.target)) close();
+        });
+      }
+    })();
+
+    // reveal on view
+    (function(){
+      const els=[...document.querySelectorAll('.reveal')];
+      if(!('IntersectionObserver'in window) || !els.length){ els.forEach(e=>e.classList.add('is-in')); return; }
+      const io=new IntersectionObserver((ents)=>{
+        ents.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('is-in'); io.unobserve(en.target);} });
+      },{threshold:.12});
+      els.forEach(e=>io.observe(e));
+    })();
+
+    // mobile filters drawer
+    (function(){
+      const pane=document.getElementById('filterPane');
+      const btn=document.getElementById('filterToggle');
+      if(pane&&btn){
+        const toggle=()=>{ const open=pane.classList.toggle('is-open'); pane.setAttribute('aria-hidden', open? 'false':'true'); };
+        btn.addEventListener('click',toggle);
+      }
+    })();
+
+    // theme toggle (prefers-color-scheme + localStorage)
+    (function(){
+      const key='mv-theme';
+      const root=document.documentElement;
+      const saved=localStorage.getItem(key);
+      const prefers=window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
+      root.setAttribute('data-theme', saved||prefers);
+      const btn=document.getElementById('themeToggle');
+      if(btn){ btn.addEventListener('click',()=>{
+        const next=(root.getAttribute('data-theme')==='dark')?'light':'dark';
+        root.setAttribute('data-theme', next); localStorage.setItem(key,next);
+      });}
+    })();
+
+    // mega menu strip toggle (click to open/close)
+    (function(){
+      const mega=document.getElementById('megaPanelNew');
+      const strip=document.querySelector('.nav-cats');
+      if(mega && strip){
+        const btns=[...strip.querySelectorAll('.cat-link')];
+        let open=false;
+        const openPanel=()=>{ mega.hidden=false; open=true; };
+        const closePanel=()=>{ mega.hidden=true; open=false; };
+        btns.forEach(b=>b.addEventListener('click',()=> open? closePanel():openPanel()));
+        document.addEventListener('click',e=>{
+          if(open && !mega.contains(e.target) && !strip.contains(e.target)) closePanel();
+        });
+      }
+    })();
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

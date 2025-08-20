@@ -1,0 +1,428 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bağlantı Hatası{% endblock %}
+
+{% block extra_css %}
+<style>
+.error-page {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    color: white;
+    margin: -2rem -15px 2rem -15px;
+    padding: 4rem 15px;
+}
+
+.error-content {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.error-icon {
+    font-size: 6rem;
+    margin-bottom: 2rem;
+    animation: connectionPulse 2s infinite;
+}
+
+.error-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.error-description {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+.error-actions {
+    margin-top: 2rem;
+}
+
+.error-actions .btn {
+    margin: 0.5rem;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.error-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+@keyframes connectionPulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.connection-status {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    color: #495057;
+}
+
+.status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    animation: blink 1s infinite;
+}
+
+.status-checking {
+    background-color: #ffc107;
+}
+
+.status-online {
+    background-color: #28a745;
+    animation: none;
+}
+
+.status-offline {
+    background-color: #dc3545;
+}
+
+@keyframes blink {
+    0%, 50% {
+        opacity: 1;
+    }
+    51%, 100% {
+        opacity: 0.3;
+    }
+}
+
+.troubleshooting {
+    background: #f8f9fa;
+    padding: 3rem 0;
+    margin-top: 2rem;
+}
+
+.troubleshooting h3 {
+    color: #495057;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.step-card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-left: 4px solid #74b9ff;
+}
+
+.step-number {
+    background: #74b9ff;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 1rem;
+}
+
+.retry-button {
+    position: relative;
+    overflow: hidden;
+}
+
+.retry-button.loading {
+    pointer-events: none;
+}
+
+.retry-button.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: loading-sweep 1.5s infinite;
+}
+
+@keyframes loading-sweep {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .error-icon {
+        font-size: 4rem;
+    }
+    
+    .error-title {
+        font-size: 2rem;
+    }
+    
+    .error-description {
+        font-size: 1rem;
+    }
+    
+    .error-page {
+        margin: -1rem -15px 1rem -15px;
+        padding: 2rem 15px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <div class="error-content">
+        <div class="error-icon">
+            <i class="fas fa-wifi" aria-hidden="true"></i>
+        </div>
+        <h1 class="error-title">Bağlantı Hatası</h1>
+        <p class="error-description">
+            İnternet bağlantınızda bir sorun var gibi görünüyor. 
+            Lütfen bağlantınızı kontrol edin ve tekrar deneyin.
+        </p>
+        <div class="error-actions">
+            <button onclick="retryConnection()" class="btn btn-light btn-lg retry-button" id="retry-btn">
+                <i class="fas fa-redo me-2" aria-hidden="true"></i>
+                Tekrar Dene
+            </button>
+            <button onclick="checkConnection()" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-network-wired me-2" aria-hidden="true"></i>
+                Bağlantıyı Test Et
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="connection-status" id="connection-status">
+        <h5>
+            <span class="status-indicator status-checking" id="status-indicator"></span>
+            <span id="status-text">Bağlantı durumu kontrol ediliyor...</span>
+        </h5>
+        <div class="progress mt-3" style="height: 6px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                 role="progressbar" style="width: 0%" id="connection-progress"></div>
+        </div>
+    </div>
+</div>
+
+<div class="troubleshooting">
+    <div class="container">
+        <h3>Sorun Giderme Adımları</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="step-card">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="step-number">1</span>
+                        <h6 class="mb-0">İnternet Bağlantısını Kontrol Edin</h6>
+                    </div>
+                    <p class="mb-0 ms-5">Modem ve router'ınızın açık olduğundan emin olun. Diğer cihazlarınızda internet çalışıyor mu kontrol edin.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="step-number">2</span>
+                        <h6 class="mb-0">Tarayıcınızı Yenileyin</h6>
+                    </div>
+                    <p class="mb-0 ms-5">Sayfayı yenileyin (F5) veya tarayıcınızın önbelleğini temizleyin.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="step-number">3</span>
+                        <h6 class="mb-0">Farklı Tarayıcı Deneyin</h6>
+                    </div>
+                    <p class="mb-0 ms-5">Farklı bir web tarayıcısı kullanarak siteye erişmeyi deneyin.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="step-card">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="step-number">4</span>
+                        <h6 class="mb-0">DNS Ayarlarını Kontrol Edin</h6>
+                    </div>
+                    <p class="mb-0 ms-5">DNS ayarlarınızı 8.8.8.8 veya 1.1.1.1 olarak değiştirmeyi deneyin.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="step-number">5</span>
+                        <h6 class="mb-0">Güvenlik Duvarını Kontrol Edin</h6>
+                    </div>
+                    <p class="mb-0 ms-5">Güvenlik duvarı veya antivirüs programınızın siteyi engellemediğinden emin olun.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="step-number">6</span>
+                        <h6 class="mb-0">Destek Ekibiyle İletişime Geçin</h6>
+                    </div>
+                    <p class="mb-0 ms-5">Sorun devam ederse müşteri destek hattımızı arayın: (555) 123 45 67</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let connectionCheckInterval;
+let retryCount = 0;
+const maxRetries = 5;
+
+function updateConnectionStatus(status, message) {
+    const indicator = document.getElementById('status-indicator');
+    const statusText = document.getElementById('status-text');
+    const progress = document.getElementById('connection-progress');
+    
+    indicator.className = `status-indicator status-${status}`;
+    statusText.textContent = message;
+    
+    if (status === 'online') {
+        progress.style.width = '100%';
+        progress.className = 'progress-bar bg-success';
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+    } else if (status === 'offline') {
+        progress.style.width = '100%';
+        progress.className = 'progress-bar bg-danger';
+    } else {
+        progress.style.width = '50%';
+        progress.className = 'progress-bar progress-bar-striped progress-bar-animated';
+    }
+}
+
+function checkConnection() {
+    updateConnectionStatus('checking', 'Bağlantı test ediliyor...');
+    
+    // Test multiple endpoints
+    const testUrls = [
+        '/api/health/',
+        'https://www.google.com/favicon.ico',
+        '/static/css/main.css'
+    ];
+    
+    let successCount = 0;
+    let completedTests = 0;
+    
+    testUrls.forEach(url => {
+        fetch(url, { 
+            method: 'HEAD', 
+            mode: 'no-cors',
+            cache: 'no-cache'
+        })
+        .then(() => {
+            successCount++;
+        })
+        .catch(() => {
+            // Connection failed
+        })
+        .finally(() => {
+            completedTests++;
+            if (completedTests === testUrls.length) {
+                if (successCount > 0) {
+                    updateConnectionStatus('online', 'Bağlantı başarılı! Sayfa yenileniyor...');
+                } else {
+                    updateConnectionStatus('offline', 'Bağlantı başarısız. Lütfen internet bağlantınızı kontrol edin.');
+                }
+            }
+        });
+    });
+}
+
+function retryConnection() {
+    const retryBtn = document.getElementById('retry-btn');
+    retryBtn.classList.add('loading');
+    retryBtn.disabled = true;
+    
+    retryCount++;
+    
+    updateConnectionStatus('checking', `Yeniden deneniyor... (${retryCount}/${maxRetries})`);
+    
+    setTimeout(() => {
+        checkConnection();
+        
+        setTimeout(() => {
+            retryBtn.classList.remove('loading');
+            retryBtn.disabled = false;
+            
+            if (retryCount >= maxRetries) {
+                retryBtn.innerHTML = '<i class="fas fa-home me-2"></i>Ana Sayfaya Dön';
+                retryBtn.onclick = () => window.location.href = '{% url "shop:product_list" %}';
+            }
+        }, 3000);
+    }, 1000);
+}
+
+// Auto-check connection on page load
+$(document).ready(function() {
+    setTimeout(checkConnection, 1000);
+    
+    // Periodic connection check
+    connectionCheckInterval = setInterval(() => {
+        if (navigator.onLine) {
+            checkConnection();
+        } else {
+            updateConnectionStatus('offline', 'Çevrimdışı - İnternet bağlantısı yok');
+        }
+    }, 10000);
+    
+    // Listen for online/offline events
+    window.addEventListener('online', () => {
+        updateConnectionStatus('checking', 'Bağlantı geri geldi, kontrol ediliyor...');
+        setTimeout(checkConnection, 500);
+    });
+    
+    window.addEventListener('offline', () => {
+        updateConnectionStatus('offline', 'İnternet bağlantısı kesildi');
+    });
+});
+
+// Cleanup on page unload
+$(window).on('beforeunload', function() {
+    if (connectionCheckInterval) {
+        clearInterval(connectionCheckInterval);
+    }
+});
+
+// Service Worker registration for offline support
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+            console.log('Service Worker registered:', registration);
+        })
+        .catch(error => {
+            console.log('Service Worker registration failed:', error);
+        });
+}
+</script>
+{% endblock %}

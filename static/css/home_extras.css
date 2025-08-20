@@ -1,0 +1,17 @@
+/* Home extra styles: hero override, press strip, newsletter */
+.hero-premium{
+  background-image: var(--hero-img, url('../img/mega-promo.jpg'));
+}
+
+/* Ayrıca hero-img arka planını değişkenden çekelim */
+.hero-img{ background-image: var(--hero-img) }
+
+/* Press strip */
+.press-strip{display:flex; gap:2rem; align-items:center; justify-content:center; opacity:.7; flex-wrap:wrap}
+.press-strip .press{font-weight:700; letter-spacing:.12em; color:var(--muted)}
+
+/* Newsletter */
+.newsletter{border:1px solid var(--sand); background:#fff; box-shadow:var(--shadow-sm); border-radius:var(--radius-lg); padding:clamp(16px,3vw,28px)}
+.newsletter h3{font-family:"Fraunces",serif; font-weight:600}
+.newsletter .form-control{border-radius:var(--radius)}
+.newsletter .hint{color:var(--muted); font-size:.9rem}

@@ -1,0 +1,6 @@
+User-agent: *
+{% if not debug %}
+Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml
+{% else %}
+Disallow:
+{% endif %}

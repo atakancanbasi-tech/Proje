@@ -1,0 +1,33 @@
+name: Quality
+on:
+  push:
+  pull_request:
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Python deps
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+      - name: Django checks
+        run: |
+          python manage.py check --deploy || true
+          python manage.py check --tag security || true
+      - name: djlint (templates)
+        run: |
+          djlint . --check --profile=django
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install JS deps
+        run: |
+          if [ -f package.json ]; then npm ci || npm i; fi
+      - name: ESLint (static/js)
+        run: |
+          npx eslint static/js

@@ -1,0 +1,12 @@
+{% autoescape off %}
+<div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5">
+
+<h2 style="margin:0 0 12px">Merhaba {{ user.get_full_name|default:user.username }},</h2>
+<p>Hesabınızı etkinleştirmek için aşağıdaki bağlantıya tıklayın:</p>
+<p><a href="{{ verify_link }}" target="_blank">{{ verify_link }}</a></p>
+<p style="color:#666">Eğer bu talep size ait değilse bu e-postayı yok sayabilirsiniz.</p>
+<hr style="border:none;border-top:1px solid #eee;margin:16px 0">
+<p style="font-size:12px;color:#888">{{ site_name|default:"Satış Sitesi" }}</p>
+
+</div>
+{% endautoescape %}

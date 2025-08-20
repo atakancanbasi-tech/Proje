@@ -1,0 +1,85 @@
+{% extends "shop/base.html" %}
+{% load money i18n humanize l10n %}
+{% load img_extras %}
+{% block title %}Yorumu Sil - {{ product.name }}{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-danger text-white">
+          <h4 class="mb-0">
+            <i class="fas fa-exclamation-triangle"></i> Yorumu Sil
+          </h4>
+        </div>
+        <div class="card-body">
+          <!-- Ürün Bilgisi -->
+          <div class="d-flex align-items-center mb-4 p-3 bg-light rounded">
+            {% if product.image %}
+              <img {% img_default_attrs 300 200 %} src="{{ product.image.url }}" alt="{{ product.name }}" class="me-3 review-product-img-small">
+            {% else %}
+              <div class="me-3 bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 60px; height: 60px; border-radius: 8px; font-size: 0.8rem;">Görsel yok</div>
+            {% endif %}
+            <div>
+              <h6 class="mb-1">{{ product.name }}</h6>
+              <p class="text-muted mb-0">₺ {{ product.price|localize }}</p>
+            </div>
+          </div>
+          
+          <!-- Silinecek Yorum -->
+          <div class="alert alert-warning">
+            <h6><strong>Silinecek Yorumunuz:</strong></h6>
+            <div class="d-flex align-items-center mt-2">
+              <div class="stars me-2">
+                {% for i in review.star_range %}
+                  {% if i <= review.rating %}
+                    <i class="fas fa-star text-warning"></i>
+                  {% else %}
+                    <i class="far fa-star text-muted"></i>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <span class="badge bg-primary">{{ review.rating }}/5</span>
+            </div>
+            {% if review.title %}
+              <strong class="mt-2 d-block">{{ review.title }}</strong>
+            {% endif %}
+            <p class="mt-2 mb-1">{{ review.comment|linebreaks }}</p>
+            <small class="text-muted">Oluşturulma: {{ review.created_at|date:"d M Y H:i" }}</small>
+          </div>
+          
+          <!-- Uyarı Mesajı -->
+          <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Dikkat!</strong> Bu işlem geri alınamaz. Yorumunuz kalıcı olarak silinecektir.
+          </div>
+          
+          <!-- Onay Formu -->
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'shop:product_detail' product.pk %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Geri Dön
+              </a>
+              <div>
+                <a href="{% url 'shop:edit_review' product.id %}" class="btn btn-outline-primary me-2">
+                  <i class="fas fa-edit"></i> Düzenle
+                </a>
+                <button type="submit" class="btn btn-danger">
+                  <i class="fas fa-trash"></i> Evet, Sil
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.stars i {
+  font-size: 1.1rem;
+}
+</style>
+{% endblock %}

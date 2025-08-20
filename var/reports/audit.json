@@ -1,0 +1,35 @@
+{
+  "time": "2025-08-19T15:27:35.461246Z",
+  "django": "5.2.5",
+  "debug": true,
+  "sections": {
+    "security": {
+      "have": {
+        "DEBUG": true,
+        "ALLOWED_HOSTS_len": 0,
+        "SECURE_SSL_REDIRECT": false,
+        "SESSION_COOKIE_SECURE": false,
+        "CSRF_COOKIE_SECURE": false,
+        "SECURE_HSTS_SECONDS": 0,
+        "WHITENOISE": true,
+        "STATICFILES_STORAGE": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "SENTRY_DSN_set": false
+      },
+      "findings": []
+    },
+    "urls": {
+      "total": 208,
+      "duplicates": []
+    },
+    "templates": {
+      "img_missing_dimensions": [],
+      "img_missing_alt": [],
+      "search_missing_aria": []
+    },
+    "css": {
+      "empty_declarations": [],
+      "prop_empty": []
+    }
+  },
+  "tips": []
+}

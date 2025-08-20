@@ -1,0 +1,445 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Güvenlik Logları{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="fas fa-shield-alt"></i> Güvenlik Logları</h4>
+                        <div>
+                            <button class="btn btn-outline-light btn-sm" onclick="refreshLogs()">
+                <i class="fas fa-sync-alt"></i> Yenile
+            </button>
+                            <a href="{% url 'security:security_settings' %}" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-cog"></i> Ayarlar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Filtreler -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <label for="actionFilter" class="form-label">Eylem Türü</label>
+                            <select class="form-select" id="actionFilter">
+                                <option value="">Tümü</option>
+                                <option value="login">Giriş</option>
+                                <option value="logout">Çıkış</option>
+                                <option value="failed_login">Başarısız Giriş</option>
+                                <option value="password_change">Şifre Değişikliği</option>
+                                <option value="2fa_enabled">2FA Etkinleştirme</option>
+                                <option value="2fa_disabled">2FA Devre Dışı</option>
+                                <option value="account_locked">Hesap Kilitleme</option>
+                                <option value="suspicious_activity">Şüpheli Aktivite</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="dateFrom" class="form-label">Başlangıç Tarihi</label>
+                            <input type="date" class="form-control" id="dateFrom">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="dateTo" class="form-label">Bitiş Tarihi</label>
+                            <input type="date" class="form-control" id="dateTo">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="ipFilter" class="form-label">IP Adresi</label>
+                            <input type="text" class="form-control" id="ipFilter" placeholder="IP adresi">
+                        </div>
+                    </div>
+
+                    <!-- Güvenlik Özeti -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-sign-in-alt fa-2x mb-2"></i>
+                                    <h5>{{ successful_logins }}</h5>
+                                    <small>Başarılı Giriş (30 gün)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-danger text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                                    <h5>{{ failed_logins }}</h5>
+                                    <small>Başarısız Giriş (30 gün)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-dark">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                                    <h5>{{ suspicious_activities }}</h5>
+                                    <small>Şüpheli Aktivite (30 gün)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-lock fa-2x mb-2"></i>
+                                    <h5>{{ account_lockouts }}</h5>
+                                    <small>Hesap Kilitleme (30 gün)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Log Tablosu -->
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="logsTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th><i class="fas fa-calendar"></i> Tarih/Saat</th>
+                                    <th><i class="fas fa-cog"></i> Eylem</th>
+                                    <th><i class="fas fa-info-circle"></i> Detay</th>
+                                    <th><i class="fas fa-globe"></i> IP Adresi</th>
+                                    <th><i class="fas fa-desktop"></i> Cihaz</th>
+                                    <th><i class="fas fa-flag"></i> Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                <tr class="log-row" data-action="{{ log.action }}" data-date="{{ log.timestamp|date:'Y-m-d' }}" data-ip="{{ log.ip_address }}">
+                                    <td>
+                                        <small class="text-muted">{{ log.timestamp|date:'d.m.Y H:i' }}</small>
+                                    </td>
+                                    <td>
+                                        {% if log.action == 'login' %}
+                                            <span class="badge bg-success"><i class="fas fa-sign-in-alt"></i> Giriş</span>
+                                        {% elif log.action == 'logout' %}
+                                            <span class="badge bg-secondary"><i class="fas fa-sign-out-alt"></i> Çıkış</span>
+                                        {% elif log.action == 'failed_login' %}
+                                            <span class="badge bg-danger"><i class="fas fa-times"></i> Başarısız Giriş</span>
+                                        {% elif log.action == 'password_change' %}
+                                            <span class="badge bg-warning"><i class="fas fa-key"></i> Şifre Değişikliği</span>
+                                        {% elif log.action == '2fa_enabled' %}
+                                            <span class="badge bg-info"><i class="fas fa-shield-alt"></i> 2FA Etkin</span>
+                                        {% elif log.action == '2fa_disabled' %}
+                                            <span class="badge bg-warning"><i class="fas fa-shield-alt"></i> 2FA Devre Dışı</span>
+                                        {% elif log.action == 'account_locked' %}
+                                            <span class="badge bg-danger"><i class="fas fa-lock"></i> Hesap Kilitli</span>
+                                        {% elif log.action == 'suspicious_activity' %}
+                                            <span class="badge bg-warning"><i class="fas fa-exclamation-triangle"></i> Şüpheli Aktivite</span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark">{{ log.get_action_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>{{ log.details|default:'-' }}</small>
+                                    </td>
+                                    <td>
+                                        <code class="small">{{ log.ip_address }}</code>
+                                        {% if log.ip_address in suspicious_ips %}
+                                            <i class="fas fa-exclamation-triangle text-warning" title="Şüpheli IP"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ log.user_agent|truncatechars:30 }}</small>
+                                    </td>
+                                    <td>
+                                        {% if log.success %}
+                                            <i class="fas fa-check-circle text-success" title="Başarılı"></i>
+                                        {% else %}
+                                            <i class="fas fa-times-circle text-danger" title="Başarısız"></i>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="fas fa-info-circle fa-2x mb-2"></i><br>
+                                        Henüz güvenlik logu bulunmuyor.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Sayfalama -->
+                    {% if logs.has_other_pages %}
+                        <nav aria-label="Sayfa navigasyonu">
+                            <ul class="pagination justify-content-center">
+                                {% if logs.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ logs.previous_page_number }}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}{% if request.GET.ip %}&ip={{ request.GET.ip }}{% endif %}">
+                                            <i class="fas fa-chevron-left"></i> Önceki
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for num in logs.paginator.page_range %}
+                                    {% if logs.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > logs.number|add:'-3' and num < logs.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}{% if request.GET.ip %}&ip={{ request.GET.ip }}{% endif %}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if logs.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ logs.next_page_number }}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}{% if request.GET.ip %}&ip={{ request.GET.ip }}{% endif %}">
+                                            Sonraki <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+                
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        Güvenlik logları 90 gün boyunca saklanır. Şüpheli aktivite tespit edildiğinde otomatik bildirim gönderilir.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const actionFilter = document.getElementById('actionFilter');
+    const dateFromFilter = document.getElementById('dateFrom');
+    const dateToFilter = document.getElementById('dateTo');
+    const ipFilter = document.getElementById('ipFilter');
+    const logsTable = document.getElementById('logsTable');
+    
+    // Bugünün tarihini varsayılan olarak ayarla
+    const today = new Date().toISOString().split('T')[0];
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    if (!dateFromFilter.value) {
+        dateFromFilter.value = thirtyDaysAgo;
+    }
+    if (!dateToFilter.value) {
+        dateToFilter.value = today;
+    }
+    
+    // Filtreleme fonksiyonu
+    function filterLogs() {
+        const actionValue = actionFilter.value.toLowerCase();
+        const dateFromValue = dateFromFilter.value;
+        const dateToValue = dateToFilter.value;
+        const ipValue = ipFilter.value.toLowerCase();
+        
+        const rows = logsTable.querySelectorAll('.log-row');
+        
+        rows.forEach(row => {
+            const action = row.dataset.action.toLowerCase();
+            const date = row.dataset.date;
+            const ip = row.dataset.ip.toLowerCase();
+            
+            let showRow = true;
+            
+            // Eylem filtresi
+            if (actionValue && !action.includes(actionValue)) {
+                showRow = false;
+            }
+            
+            // Tarih filtresi
+            if (dateFromValue && date < dateFromValue) {
+                showRow = false;
+            }
+            if (dateToValue && date > dateToValue) {
+                showRow = false;
+            }
+            
+            // IP filtresi
+            if (ipValue && !ip.includes(ipValue)) {
+                showRow = false;
+            }
+            
+            row.style.display = showRow ? '' : 'none';
+        });
+    }
+    
+    // Event listener'lar
+    actionFilter.addEventListener('change', filterLogs);
+    dateFromFilter.addEventListener('change', filterLogs);
+    dateToFilter.addEventListener('change', filterLogs);
+    ipFilter.addEventListener('input', debounce(filterLogs, 300));
+    
+    // Debounce fonksiyonu
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Sayfa yenileme fonksiyonu
+    window.refreshLogs = function() {
+        const params = new URLSearchParams();
+        
+        if (actionFilter.value) params.append('action', actionFilter.value);
+        if (dateFromFilter.value) params.append('date_from', dateFromFilter.value);
+        if (dateToFilter.value) params.append('date_to', dateToFilter.value);
+        if (ipFilter.value) params.append('ip', ipFilter.value);
+        
+        const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        window.location.href = url;
+    };
+    
+    // URL parametrelerinden filtreleri yükle
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action')) actionFilter.value = urlParams.get('action');
+    if (urlParams.get('date_from')) dateFromFilter.value = urlParams.get('date_from');
+    if (urlParams.get('date_to')) dateToFilter.value = urlParams.get('date_to');
+    if (urlParams.get('ip')) ipFilter.value = urlParams.get('ip');
+    
+    // Otomatik yenileme (5 dakikada bir)
+    setInterval(function() {
+        const refreshBtn = document.querySelector('[onclick="refreshLogs()"]');
+        if (refreshBtn) {
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Yenileniyor...';
+            setTimeout(() => {
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Yenile';
+            }, 1000);
+        }
+    }, 300000); // 5 dakika
+    
+    // Tablo satırlarına hover efekti
+    const tableRows = document.querySelectorAll('.log-row');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        row.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+        });
+    });
+});
+</script>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.card-footer {
+    border-radius: 0 0 15px 15px !important;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #6c757d;
+    box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+}
+
+.btn {
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.badge {
+    font-size: 0.75em;
+    padding: 0.5em 0.75em;
+}
+
+.shadow {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.log-row {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.log-row:hover {
+    transform: translateX(5px);
+}
+
+code {
+    background-color: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 0.875em;
+}
+
+.pagination .page-link {
+    border-radius: 10px;
+    margin: 0 2px;
+    border: none;
+    color: #6c757d;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.alert {
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.875em;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875em;
+    }
+}
+</style>
+
+<script>
+function refreshLogs() {
+    location.reload();
+}
+</script>
+{% endblock %}

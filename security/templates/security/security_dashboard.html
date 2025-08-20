@@ -1,0 +1,349 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Güvenlik Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+    }
+    .stat-card.danger {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    }
+    .stat-card.warning {
+        background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+    }
+    .stat-card.success {
+        background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
+    }
+    .stat-card.info {
+        background: linear-gradient(135deg, #3742fa 0%, #2f3542 100%);
+    }
+    .activity-item {
+        border-left: 4px solid #dee2e6;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+    }
+    .activity-item.high {
+        border-left-color: #dc3545;
+        background-color: #f8d7da;
+    }
+    .activity-item.medium {
+        border-left-color: #ffc107;
+        background-color: #fff3cd;
+    }
+    .activity-item.low {
+        border-left-color: #28a745;
+        background-color: #d4edda;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+    .ip-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .ip-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .ip-item:last-child {
+        border-bottom: none;
+    }
+    .activity-badge {
+        font-size: 0.8em;
+        padding: 4px 8px;
+        border-radius: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-tachometer-alt text-primary"></i> Güvenlik Dashboard</h2>
+                <div>
+                    <a href="{% url 'security:suspicious_activities' %}" class="btn btn-outline-danger me-2">
+                        <i class="fas fa-shield-alt"></i> Şüpheli Aktiviteler
+                    </a>
+                    <a href="{% url 'security:security_logs' %}" class="btn btn-outline-info">
+                        <i class="fas fa-list"></i> Güvenlik Logları
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- İstatistik Kartları -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card danger dashboard-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <h3 class="mb-0">{{ stats.suspicious_activities_24h }}</h3>
+                    <p class="mb-0">Şüpheli Aktivite (24s)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card warning dashboard-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-times-circle fa-2x mb-3"></i>
+                    <h3 class="mb-0">{{ stats.failed_logins_24h }}</h3>
+                    <p class="mb-0">Başarısız Giriş (24s)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card success dashboard-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-2x mb-3"></i>
+                    <h3 class="mb-0">{{ stats.successful_logins_24h }}</h3>
+                    <p class="mb-0">Başarılı Giriş (24s)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card info dashboard-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-lock fa-2x mb-3"></i>
+                    <h3 class="mb-0">{{ stats.locked_accounts }}</h3>
+                    <p class="mb-0">Kilitli Hesap</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yüksek Risk Uyarısı -->
+    {% if stats.high_risk_activities > 0 %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Yüksek Risk Uyarısı!</h4>
+                <p class="mb-0">
+                    <strong>{{ stats.high_risk_activities }}</strong> adet yüksek riskli şüpheli aktivite tespit edildi. 
+                    <a href="{% url 'security:suspicious_activities' %}?severity=high" class="alert-link">Hemen inceleyin</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Son Şüpheli Aktiviteler -->
+        <div class="col-lg-6 mb-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shield-alt"></i> Son Şüpheli Aktiviteler
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                        {% for activity in recent_activities %}
+                            <div class="activity-item {{ activity.severity }}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ activity.get_activity_type_display }}</h6>
+                                        <p class="text-muted mb-1">
+                                            <i class="fas fa-user"></i> 
+                                            {% if activity.user %}
+                                                {{ activity.user.username }}
+                                            {% else %}
+                                                Anonim
+                                            {% endif %}
+                                            <span class="ms-2">
+                                                <i class="fas fa-globe"></i> {{ activity.ip_address }}
+                                            </span>
+                                        </p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i> {{ activity.created_at|timesince }} önce
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-{{ activity.severity }} activity-badge">
+                                            {{ activity.get_severity_display }}
+                                        </span>
+                                        <br>
+                                        <small class="text-muted">Risk: {{ activity.risk_score }}/100</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'security:suspicious_activities' %}" class="btn btn-outline-danger">
+                                Tümünü Görüntüle
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-3x mb-3"></i>
+                            <p>Şüpheli aktivite bulunmuyor</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- En Çok Şüpheli Aktivite Olan IP'ler -->
+        <div class="col-lg-6 mb-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-globe"></i> Riskli IP Adresleri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if top_ips %}
+                        <div class="ip-list">
+                            {% for ip_data in top_ips %}
+                                <div class="ip-item">
+                                    <div>
+                                        <strong>{{ ip_data.ip_address|default:"Bilinmeyen" }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ ip_data.count }} aktivite</small>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'security:suspicious_activities' %}?ip={{ ip_data.ip_address }}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye"></i> İncele
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-3x mb-3"></i>
+                            <p>Riskli IP adresi bulunmuyor</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aktivite Türü Dağılımı -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card dashboard-card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie"></i> Aktivite Türü Dağılımı
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if activity_distribution %}
+                        <div class="row">
+                            {% for activity in activity_distribution %}
+                                <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h4 class="text-primary">{{ activity.count }}</h4>
+                                            <p class="mb-0 small">
+                                                {% for type_value, type_label in activity_types %}
+                                                    {% if type_value == activity.activity_type %}
+                                                        {{ type_label }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-chart-pie fa-3x mb-3"></i>
+                            <p>Henüz aktivite verisi bulunmuyor</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hızlı Eylemler -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card dashboard-card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt"></i> Hızlı Eylemler
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'security:suspicious_activities' %}?status=detected" 
+                               class="btn btn-outline-warning w-100">
+                                <i class="fas fa-eye"></i> Bekleyen Aktiviteler
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'security:suspicious_activities' %}?severity=high" 
+                               class="btn btn-outline-danger w-100">
+                                <i class="fas fa-exclamation-triangle"></i> Yüksek Risk
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'security:security_logs' %}?event_type=login_failed" 
+                               class="btn btn-outline-info w-100">
+                                <i class="fas fa-times-circle"></i> Başarısız Girişler
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button type="button" class="btn btn-outline-success w-100" onclick="refreshDashboard()">
+                    <i class="fas fa-sync-alt"></i> Yenile
+                </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function refreshDashboard() {
+    location.reload();
+}
+
+// Otomatik yenileme (5 dakikada bir)
+setInterval(function() {
+    // Sadece sayfa aktifse yenile
+    if (!document.hidden) {
+        location.reload();
+    }
+}, 300000); // 5 dakika
+
+// Sayfa görünürlük değişikliklerini takip et
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        // Sayfa tekrar görünür olduğunda yenile
+        location.reload();
+    }
+});
+</script>
+{% endblock %}

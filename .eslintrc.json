@@ -1,0 +1,17 @@
+{
+  "root": true,
+  "env": { "browser": true, "es2021": true },
+  "extends": ["eslint:recommended"],
+  "parserOptions": { "ecmaVersion": 2021, "sourceType": "module" },
+  "ignorePatterns": ["/*.min.js", "node_modules/", "venv/", "static/vendor/"],
+  "overrides": [
+    {
+      "files": ["static/js/**/*.js"],
+      "rules": {
+        "no-unused-vars": "warn",
+        "no-undef": "error",
+        "no-console": "off"
+      }
+    }
+  ]
+}

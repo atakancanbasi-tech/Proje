@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sayfa Bulunamadı - 404{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <div class="error-content">
+        <div class="error-code" aria-hidden="true">404</div>
+        <h1 class="error-title">Sayfa Bulunamadı</h1>
+        <p class="error-description">
+            Aradığınız sayfa mevcut değil veya taşınmış olabilir. 
+            Ana sayfaya dönebilir veya aşağıdaki bağlantıları kullanabilirsiniz.
+        </p>
+        <div class="error-actions">
+            <a href="{% url 'shop:product_list' %}" class="btn btn-light btn-lg">
+                <i class="fas fa-home me-2" aria-hidden="true"></i>
+                Ana Sayfaya Dön
+            </a>
+            <button onclick="history.back()" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-arrow-left me-2" aria-hidden="true"></i>
+                Geri Git
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="helpful-links">
+    <div class="container">
+        <h3>Size Yardımcı Olabilecek Bağlantılar</h3>
+        <div class="row">
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="link-card">
+                    <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+                    <h5>Ürünler</h5>
+                    <p>Tüm ürünlerimizi keşfedin</p>
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-primary">
+                        Ürünleri Görüntüle
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="link-card">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    <h5>Arama</h5>
+                    <p>Aradığınızı bulun</p>
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-primary">
+                        Arama Yap
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="link-card">
+                    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                    <h5>Sepetim</h5>
+                    <p>Sepetinizdeki ürünler</p>
+                    <a href="{% url 'cart:cart_detail' %}" class="btn btn-primary">
+                        Sepeti Görüntüle
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="link-card">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    <h5>Hesabım</h5>
+                    <p>Hesap bilgileriniz</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'account:dashboard' %}" class="btn btn-primary">
+                            Hesabıma Git
+                        </a>
+                    {% else %}
+                        <a href="{% url 'account:login' %}" class="btn btn-primary">
+                            Giriş Yap
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add some interactive elements
+$(document).ready(function() {
+    // Add hover effect to error code
+    $('.error-code').hover(
+        function() {
+            $(this).css('transform', 'scale(1.1)');
+        },
+        function() {
+            $(this).css('transform', 'scale(1)');
+        }
+    );
+    
+    // Track 404 errors for analytics (if needed)
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'page_view', {
+            'page_title': '404 Error',
+            'page_location': window.location.href
+        });
+    }
+});
+</script>
+{% endblock %}

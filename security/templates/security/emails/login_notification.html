@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Bildirimi</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        .title {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        .success-container {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .success-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .success-message {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .content {
+            margin: 25px 0;
+            line-height: 1.8;
+        }
+        .login-details {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #28a745;
+        }
+        .details-title {
+            color: #155724;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .detail-item {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #28a745;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #155724;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .detail-value {
+            color: #495057;
+            font-size: 16px;
+        }
+        .device-info {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #6c757d;
+        }
+        .device-title {
+            color: #495057;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .device-details {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .security-status {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #17a2b8;
+        }
+        .status-title {
+            color: #0c5460;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .status-item {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 3px solid #17a2b8;
+        }
+        .status-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .status-label {
+            font-size: 12px;
+            color: #0c5460;
+            font-weight: bold;
+        }
+        .status-value {
+            font-size: 14px;
+            color: #495057;
+            margin-top: 5px;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .warning-icon {
+            color: #856404;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .contact-info {
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        .map-container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .location-text {
+            color: #495057;
+            font-size: 14px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+            }
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            .btn {
+                display: block;
+                margin: 10px 0;
+                text-align: center;
+            }
+            .success-icon {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">✅ {{ site_name|default:"Güvenli Alışveriş" }}</div>
+            <h1 class="title">Başarılı Giriş Bildirimi</h1>
+        </div>
+
+        <div class="success-container">
+            <span class="success-icon">🎉</span>
+            <div class="success-title">Hesabınıza Başarıyla Giriş Yapıldı</div>
+            <div class="success-message">Güvenlik bildiriminiz</div>
+        </div>
+
+        <div class="content">
+            <p>Merhaba <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+            
+            <p>Hesabınıza başarılı bir giriş yapıldığını bildirmek isteriz. Güvenliğiniz için bu bildirimi gönderiyoruz.</p>
+        </div>
+
+        <div class="login-details">
+            <div class="details-title">📋 Giriş Detayları:</div>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <div class="detail-label">📅 Tarih & Saat</div>
+                    <div class="detail-value">{{ timestamp|date:"d.m.Y H:i" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">🌐 IP Adresi</div>
+                    <div class="detail-value">{{ ip_address }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">📍 Konum</div>
+                    <div class="detail-value">{{ location|default:"Bilinmiyor" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">🔐 Giriş Yöntemi</div>
+                    <div class="detail-value">
+                        {% if two_factor_used %}
+                            2FA ile Güvenli Giriş
+                        {% else %}
+                            Standart Giriş
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="device-info">
+            <div class="device-title">💻 Cihaz Bilgileri:</div>
+            <div class="device-details">
+                <p><strong>Tarayıcı/Uygulama:</strong> {{ browser|default:"Bilinmiyor" }}</p>
+                <p><strong>İşletim Sistemi:</strong> {{ operating_system|default:"Bilinmiyor" }}</p>
+                <p><strong>Cihaz Türü:</strong> {{ device_type|default:"Bilinmiyor" }}</p>
+                <p><strong>User Agent:</strong> <small>{{ user_agent|truncatechars:80 }}</small></p>
+            </div>
+        </div>
+
+        <div class="security-status">
+            <div class="status-title">🛡️ Güvenlik Durumu:</div>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="status-icon">🔐</span>
+                    <div class="status-label">2FA DURUMU</div>
+                    <div class="status-value">
+                        {% if user.usersecuritysettings.two_factor_enabled %}
+                            ✅ Etkin
+                        {% else %}
+                            ❌ Devre Dışı
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">📧</span>
+                    <div class="status-label">E-POSTA BİLDİRİMLERİ</div>
+                    <div class="status-value">
+                        {% if user.usersecuritysettings.login_notifications %}
+                            ✅ Etkin
+                        {% else %}
+                            ❌ Devre Dışı
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">⚠️</span>
+                    <div class="status-label">GÜVENLİK UYARILARI</div>
+                    <div class="status-value">
+                        {% if user.usersecuritysettings.suspicious_activity_alerts %}
+                            ✅ Etkin
+                        {% else %}
+                            ❌ Devre Dışı
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">🔒</span>
+                    <div class="status-label">HESAP DURUMU</div>
+                    <div class="status-value">
+                        {% if user.is_active %}
+                            ✅ Aktif
+                        {% else %}
+                            ❌ Pasif
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if location %}
+        <div class="map-container">
+            <div class="location-text">
+                🗺️ <strong>Giriş Konumu:</strong> {{ location }}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not two_factor_used %}
+        <div class="warning">
+            <span class="warning-icon">⚠️</span>
+            <strong>Güvenlik Önerisi:</strong> Hesabınızın güvenliğini artırmak için iki faktörlü kimlik doğrulamayı (2FA) etkinleştirmenizi öneririz.
+        </div>
+        {% endif %}
+
+        <div class="content">
+            <p><strong>Bu giriş size ait değilse:</strong></p>
+            <ul>
+                <li>Derhal şifrenizi değiştirin</li>
+                <li>Hesabınızı kontrol edin</li>
+                <li>İki faktörlü kimlik doğrulamayı etkinleştirin</li>
+                <li>Bizimle iletişime geçin</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ security_settings_url }}" class="btn">🔧 Güvenlik Ayarları</a>
+            <a href="{{ change_password_url }}" class="btn btn-secondary">🔑 Şifre Değiştir</a>
+        </div>
+
+        <div class="content">
+            <p>Hesabınızın güvenliği bizim için çok önemlidir. Herhangi bir şüpheniz varsa lütfen bizimle iletişime geçin.</p>
+        </div>
+
+        <div class="footer">
+            <p><strong>{{ site_name|default:"Güvenli Alışveriş" }} Güvenlik Ekibi</strong></p>
+            <p>Bu e-posta otomatik güvenlik sistemi tarafından gönderilmiştir.</p>
+            
+            <div class="contact-info">
+                <p>📧 Destek: support@example.com | 📞 Telefon: +90 (212) 123 45 67</p>
+                <p>🌐 Web: www.example.com | 📍 Adres: İstanbul, Türkiye</p>
+                <p>🕒 Destek Saatleri: Pazartesi-Cuma 09:00-18:00</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

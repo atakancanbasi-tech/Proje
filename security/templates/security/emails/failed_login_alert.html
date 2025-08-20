@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Güvenlik Uyarısı</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #dc3545; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f8f9fa; }
+        .alert { background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .details { background-color: white; padding: 15px; margin: 15px 0; border-radius: 5px; border: 1px solid #dee2e6; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Güvenlik Uyarısı</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Merhaba {{ user.first_name|default:user.username }},</h2>
+            
+            <div class="alert">
+                <strong>Hesabınızda çoklu başarısız giriş denemesi tespit edildi!</strong>
+            </div>
+            
+            <p>Hesabınızda {{ details.attempts }} başarısız giriş denemesi yapıldı. Bu güvenlik açısından endişe verici olabilir.</p>
+            
+            <div class="details">
+                <h3>Detaylar:</h3>
+                <ul>
+                    <li><strong>Deneme Sayısı:</strong> {{ details.attempts }}</li>
+                    <li><strong>IP Adresi:</strong> {{ details.ip_address }}</li>
+                    <li><strong>Tarih/Saat:</strong> {{ timestamp|date:"d.m.Y H:i" }}</li>
+                    {% if details.user_agent %}
+                    <li><strong>Tarayıcı:</strong> {{ details.user_agent }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <h3>Ne Yapmalısınız?</h3>
+            <ul>
+                <li>Eğer bu giriş denemeleri sizin değilse, derhal şifrenizi değiştirin</li>
+                <li>İki faktörlü kimlik doğrulamayı etkinleştirin</li>
+                <li>Hesabınızı düzenli olarak kontrol edin</li>
+                <li>Şüpheli aktivite fark ederseniz bizimle iletişime geçin</li>
+            </ul>
+            
+            {% if details.attempts >= 5 %}
+            <div class="alert">
+                <strong>Uyarı:</strong> Çok fazla başarısız deneme nedeniyle hesabınız geçici olarak kilitlenmiştir.
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="footer">
+            <p>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayın.</p>
+            <p>© {{ timestamp.year }} Güvenlik Sistemi</p>
+        </div>
+    </div>
+</body>
+</html>

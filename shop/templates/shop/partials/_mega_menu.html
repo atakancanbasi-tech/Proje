@@ -1,0 +1,40 @@
+{% load static %}
+{% load img_extras %}
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-6 col-md-3">
+      <h6 class="text-uppercase text-muted small mb-2">Öne Çıkanlar</h6>
+      <ul class="list-unstyled m-0">
+        <li><a class="dropdown-item py-1" href="{% url 'shop:product_list' %}?popular=1">Popüler Ürünler</a></li>
+        <li><a class="dropdown-item py-1" href="{% url 'shop:product_list' %}?newest=1">Yeni Gelenler</a></li>
+        <li><a class="dropdown-item py-1" href="{% url 'shop:product_list' %}?discounted=1">İndirimdekiler</a></li>
+      </ul>
+    </div>
+    <div class="col-6 col-md-6">
+      <h6 class="text-uppercase text-muted small mb-2">Kategoriler</h6>
+      <div class="row row-cols-2 g-2">
+        {% if top_categories %}
+          {% for cat in top_categories %}
+            <div class="col">
+              <a class="dropdown-item py-1" href="{{ cat.get_absolute_url }}">{{ cat.name }}</a>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="col"><a class="dropdown-item py-1" href="#">Oturma Odası</a></div>
+          <div class="col"><a class="dropdown-item py-1" href="#">Yatak Odası</a></div>
+          <div class="col"><a class="dropdown-item py-1" href="#">Mutfak</a></div>
+          <div class="col"><a class="dropdown-item py-1" href="#">Aydınlatma</a></div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card card-soft p-3 h-100">
+        <div class="ratio ratio-16x9 rounded overflow-hidden mb-2 bg-light">
+          <img {% img_default_attrs 640 360 %} src="{% static 'img/mega-promo.jpg' %}" class="object-fit-cover" alt="Kampanya">
+        </div>
+        <div class="small text-muted mb-2">Seçili ürünlerde</div>
+        <a href="{% url 'shop:product_list' %}?promo=1" class="btn btn-brand w-100">Kampanyayı Gör</a>
+      </div>
+    </div>
+  </div>
+</div>

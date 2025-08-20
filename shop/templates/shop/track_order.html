@@ -1,0 +1,148 @@
+{% extends 'shop/base.html' %}
+{% load static l10n %}
+{% load img_extras %}
+
+{% block title %}Kargo Takip{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="mb-0">Kargo Takip</h3>
+        </div>
+        <div class="card-body">
+          {% if error_message %}
+            <div class="alert alert-danger" role="alert">
+              {{ error_message }}
+            </div>
+          {% endif %}
+          
+          {% if not order %}
+            <form method="post">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-md-6">
+                  <h5>Sipariş Bilgileri ile Sorgula</h5>
+                  <div class="mb-3">
+                    <label for="order_id" class="form-label">Sipariş Numarası</label>
+                    <input type="text" class="form-control" id="order_id" name="order_id" placeholder="Örn: 12345">
+                  </div>
+                  <div class="mb-3">
+                    <label for="email" class="form-label">E-posta Adresi</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="ornek@email.com">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <h5>Kargo Takip Numarası ile Sorgula</h5>
+                  <div class="mb-3">
+                    <label for="tracking_number" class="form-label">Takip Numarası</label>
+                    <input type="text" class="form-control" id="tracking_number" name="tracking_number" placeholder="Kargo takip numaranız">
+                  </div>
+                </div>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-primary">Sorgula</button>
+              </div>
+            </form>
+          {% else %}
+            <div class="order-tracking-result">
+              <h4>Sipariş Detayları</h4>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <strong>Sipariş Numarası:</strong> {{ order.order_number }}
+                </div>
+                <div class="col-md-6">
+                  <strong>Tarih:</strong> {{ order.created_at|date:"j F Y H:i" }}
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <strong>Durum:</strong> 
+                  <span class="badge 
+                    {% if order.status == 'pending' %}bg-warning
+                    {% elif order.status == 'processing' %}bg-info
+                    {% elif order.status == 'shipped' %}bg-primary
+                    {% elif order.status == 'delivered' %}bg-success
+                    {% elif order.status == 'cancelled' %}bg-danger
+                    {% else %}bg-secondary{% endif %}">
+                    {% if order.status == 'received' %}Alındı
+                    {% elif order.status == 'paid' %}Ödendi
+                    {% elif order.status == 'shipped' %}Kargolandı
+                    {% elif order.status == 'cancelled' %}İptal
+                    {% else %}{{ order.status }}{% endif %}
+                  </span>
+                </div>
+                <div class="col-md-6">
+                  <strong>Toplam Tutar:</strong> ₺ {{ order.total|floatformat:2|localize }}
+                </div>
+              </div>
+              
+              {% if order.status == 'shipped' %}
+              <div class="row mb-3">
+                <div class="col-12">
+                  <strong>Kargo Durumu:</strong> Siparişiniz kargoya verilmiştir. Kargo takip sistemi yakında aktif olacaktır.
+                </div>
+              </div>
+              {% endif %}
+              
+              <h5 class="mt-4">Sipariş Ürünleri</h5>
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Ürün</th>
+                      <th>Adet</th>
+                      <th>Birim Fiyat</th>
+                      <th>Toplam</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in order.orderitem_set.all %}
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          {% if item.product.image %}
+                            <img {% img_default_attrs 300 200 %} src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                          {% endif %}
+                          <div>
+                            <strong>{{ item.product.name }}</strong><br>
+                            <small class="text-muted">{{ item.product.category.name }}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{{ item.quantity }}</td>
+                      <td>₺ {{ item.price|floatformat:2|localize }}</td>
+                      <td>₺ {{ item.get_total|floatformat:2|localize }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              
+              <h5 class="mt-4">Teslimat Adresi</h5>
+              <div class="card">
+                <div class="card-body">
+                  <address>
+                    <strong>{{ order.fullname }}</strong><br>
+                    {{ order.shipping_address.address_line_1 }}<br>
+                    {% if order.shipping_address.address_line_2 %}
+                      {{ order.shipping_address.address_line_2 }}<br>
+                    {% endif %}
+                    {{ order.shipping_address.city }}, {{ order.shipping_address.state }} {{ order.shipping_address.postal_code }}<br>
+                    {{ order.shipping_address.country }}<br>
+                    {% if order.shipping_address.phone %}
+                      <abbr title="Telefon">Tel:</abbr> {{ order.shipping_address.phone }}
+                    {% endif %}
+                  </address>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,211 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Güvenli Giriş{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-shield-alt"></i> Güvenli Giriş</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                                <i class="fas fa-user"></i> Kullanıcı Adı veya E-posta
+                            </label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.username.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">
+                                <i class="fas fa-lock"></i> Şifre
+                            </label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- CAPTCHA Alanı -->
+                        {% if form.captcha %}
+                            <div class="mb-3" id="captcha-container">
+                                <label for="{{ form.captcha.id_for_label }}" class="form-label">
+                                    <i class="fas fa-shield-alt"></i> Güvenlik Doğrulaması
+                                </label>
+                                <div class="row">
+                                    <div class="col-8">
+                                        <div class="captcha-image-container mb-2">
+                                            <img id="captcha-image" src="{% url 'security:captcha_image' %}" 
+                                                 alt="CAPTCHA" class="img-fluid border rounded" 
+                                                 style="max-height: 60px;">
+                                        </div>
+                                        {{ form.captcha }}
+                                    </div>
+                                    <div class="col-4">
+                                        <button type="button" id="refresh-captcha" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-sync-alt"></i> Yenile
+                                        </button>
+                                    </div>
+                                </div>
+                                {% if form.captcha.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.captcha.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3 form-check">
+                            {{ form.remember_me }}
+                            <label class="form-check-label" for="{{ form.remember_me.id_for_label }}">
+                                Beni hatırla
+                            </label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Giriş Yap
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr>
+                    
+                    <div class="text-center">
+                        <p class="mb-2">
+                            <a href="{% url 'security:password_reset_request' %}" class="text-decoration-none">
+                                <i class="fas fa-key"></i> Şifremi Unuttum
+                            </a>
+                        </p>
+                        <p class="mb-0">
+                            Hesabınız yok mu? 
+                            <a href="{% url 'security:register' %}" class="text-decoration-none">
+                                <i class="fas fa-user-plus"></i> Kayıt Ol
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card-footer text-muted text-center small">
+                    <i class="fas fa-shield-alt text-success"></i>
+                    Bu sayfa SSL ile korunmaktadır
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.form-control {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn {
+    border-radius: 10px;
+    padding: 12px;
+    font-weight: 600;
+}
+
+.alert {
+    border-radius: 10px;
+}
+
+.shadow {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+</style>
+
+<script>
+// CAPTCHA yenileme işlevi
+document.addEventListener('DOMContentLoaded', function() {
+    const refreshButton = document.getElementById('refresh-captcha');
+    const captchaImage = document.getElementById('captcha-image');
+    const captchaInput = document.querySelector('input[name="captcha"]');
+    
+    if (refreshButton && captchaImage) {
+        refreshButton.addEventListener('click', function() {
+            // Yükleme göstergesi
+            refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yükleniyor...';
+            refreshButton.disabled = true;
+            
+            // CAPTCHA yenileme isteği
+            fetch('{% url "security:captcha_refresh" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // CAPTCHA görüntüsünü güncelle
+                    captchaImage.src = data.captcha_url;
+                    
+                    // Input alanını temizle
+                    if (captchaInput) {
+                        captchaInput.value = '';
+                        captchaInput.focus();
+                    }
+                } else {
+                    alert('CAPTCHA yenilenemedi. Lütfen sayfayı yenileyin.');
+                }
+            })
+            .catch(error => {
+                console.error('CAPTCHA yenileme hatası:', error);
+                alert('CAPTCHA yenilenemedi. Lütfen sayfayı yenileyin.');
+            })
+            .finally(() => {
+                // Butonu eski haline getir
+                refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Yenile';
+                refreshButton.disabled = false;
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

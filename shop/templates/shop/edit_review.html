@@ -1,0 +1,118 @@
+{% extends "shop/base.html" %}
+{% load money i18n humanize l10n %}
+{% load img_extras %}
+{% block title %}Yorumu Düzenle - {{ product.name }}{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">Yorumu Düzenle</h4>
+        </div>
+        <div class="card-body">
+          <!-- Ürün Bilgisi -->
+          <div class="d-flex align-items-center mb-4 p-3 bg-light rounded">
+            {% if product.image %}
+              <img {% img_default_attrs 300 200 %} src="{{ product.image.url }}" alt="{{ product.name }}" class="me-3 review-product-img">
+            {% else %}
+              <div class="me-3 bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 80px; height: 80px; border-radius: 8px;">Görsel yok</div>
+            {% endif %}
+            <div>
+              <h6 class="mb-1">{{ product.name }}</h6>
+              <p class="text-muted mb-0">₺ {{ product.price|localize }}</p>
+            </div>
+          </div>
+          
+          <!-- Mevcut Yorum Bilgisi -->
+          <div class="alert alert-info mb-4">
+            <strong>Mevcut Yorumunuz:</strong><br>
+            <div class="d-flex align-items-center mt-2">
+              <div class="stars me-2">
+                {% for i in review.star_range %}
+                  {% if i <= review.rating %}
+                    <i class="fas fa-star text-warning"></i>
+                  {% else %}
+                    <i class="far fa-star text-muted"></i>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <span class="badge bg-primary">{{ review.rating }}/5</span>
+            </div>
+            {% if review.title %}
+              <strong class="mt-2 d-block">{{ review.title }}</strong>
+            {% endif %}
+            <p class="mt-2 mb-0">{{ review.comment|truncatewords:20 }}</p>
+            <small class="text-muted">Oluşturulma: {{ review.created_at|date:"j F Y H:i" }}</small>
+          </div>
+          
+          <!-- Düzenleme Formu -->
+          <form method="post">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+            
+            <!-- Puan -->
+            <div class="mb-3">
+              <label for="{{ form.rating.id_for_label }}" class="form-label">{{ form.rating.label }} *</label>
+              {{ form.rating }}
+              {% if form.rating.errors %}
+                <div class="text-danger small mt-1">
+                  {{ form.rating.errors }}
+                </div>
+              {% endif %}
+            </div>
+            
+            <!-- Başlık -->
+            <div class="mb-3">
+              <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+              {{ form.title }}
+              {% if form.title.errors %}
+                <div class="text-danger small mt-1">
+                  {{ form.title.errors }}
+                </div>
+              {% endif %}
+            </div>
+            
+            <!-- Yorum -->
+            <div class="mb-3">
+              <label for="{{ form.comment.id_for_label }}" class="form-label">{{ form.comment.label }} *</label>
+              {{ form.comment }}
+              {% if form.comment.errors %}
+                <div class="text-danger small mt-1">
+                  {{ form.comment.errors }}
+                </div>
+              {% endif %}
+            </div>
+            
+            <!-- Butonlar -->
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'shop:product_detail' product.pk %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Geri Dön
+              </a>
+              <div>
+                <a href="{% url 'shop:delete_review' product.id %}" class="btn btn-outline-danger me-2">
+                  <i class="fas fa-trash"></i> Sil
+                </a>
+                <button type="submit" class="btn btn-success">
+                  <i class="fas fa-save"></i> Değişiklikleri Kaydet
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.stars i {
+  font-size: 1.2rem;
+}
+</style>
+{% endblock %}

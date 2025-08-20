@@ -1,0 +1,337 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Şüpheli Aktiviteler - Güvenlik{% endblock %}
+
+{% block extra_css %}
+<style>
+    .activity-card {
+        border-left: 4px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+    .activity-card.severity-low {
+        border-left-color: #28a745;
+    }
+    .activity-card.severity-medium {
+        border-left-color: #ffc107;
+    }
+    .activity-card.severity-high {
+        border-left-color: #fd7e14;
+    }
+    .activity-card.severity-critical {
+        border-left-color: #dc3545;
+    }
+    .activity-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    .risk-score {
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+    }
+    .risk-low { background-color: #d4edda; color: #155724; }
+    .risk-medium { background-color: #fff3cd; color: #856404; }
+    .risk-high { background-color: #f8d7da; color: #721c24; }
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+    }
+    .filter-section {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-shield-alt text-danger"></i> Şüpheli Aktiviteler</h2>
+                <a href="{% url 'security:security_dashboard' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- İstatistikler -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ stats.total }}</h3>
+                    <p class="mb-0">Toplam Aktivite</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ stats.pending }}</h3>
+                    <p class="mb-0">Bekleyen</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ stats.high_risk }}</h3>
+                    <p class="mb-0">Yüksek Risk</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ stats.today }}</h3>
+                    <p class="mb-0">Bugün</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtreler -->
+    <div class="filter-section">
+        <form method="get" class="row g-3">
+            <div class="col-md-2">
+                <label for="activity_type" class="form-label">Aktivite Türü</label>
+                <select name="activity_type" id="activity_type" class="form-select">
+                    <option value="">Tümü</option>
+                    {% for value, label in activity_types %}
+                        <option value="{{ value }}" {% if filters.activity_type == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="severity" class="form-label">Önem Derecesi</label>
+                <select name="severity" id="severity" class="form-select">
+                    <option value="">Tümü</option>
+                    {% for value, label in severity_levels %}
+                        <option value="{{ value }}" {% if filters.severity == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="status" class="form-label">Durum</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">Tümü</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="user" class="form-label">Kullanıcı</label>
+                <input type="text" name="user" id="user" class="form-control" 
+                       value="{{ filters.user }}" placeholder="Kullanıcı adı/e-posta">
+            </div>
+            <div class="col-md-2">
+                <label for="date_from" class="form-label">Başlangıç</label>
+                <input type="date" name="date_from" id="date_from" class="form-control" 
+                       value="{{ filters.date_from }}">
+            </div>
+            <div class="col-md-2">
+                <label for="date_to" class="form-label">Bitiş</label>
+                <input type="date" name="date_to" id="date_to" class="form-control" 
+                       value="{{ filters.date_to }}">
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Filtrele
+                </button>
+                <a href="{% url 'security:suspicious_activities' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Temizle
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Aktivite Listesi -->
+    <div class="row">
+        <div class="col-12">
+            {% if page_obj %}
+                {% for activity in page_obj %}
+                    <div class="card activity-card severity-{{ activity.severity }} mb-3">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h5 class="mb-0 me-3">{{ activity.get_activity_type_display }}</h5>
+                                        <span class="badge bg-{{ activity.severity }} me-2">{{ activity.get_severity_display }}</span>
+                                        <span class="badge bg-secondary">{{ activity.get_status_display }}</span>
+                                    </div>
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-user"></i> 
+                                        {% if activity.user %}
+                                            {{ activity.user.username }}
+                                        {% else %}
+                                            Anonim
+                                        {% endif %}
+                                        <span class="ms-3">
+                                            <i class="fas fa-globe"></i> {{ activity.ip_address }}
+                                        </span>
+                                        <span class="ms-3">
+                                            <i class="fas fa-clock"></i> {{ activity.created_at|date:"d.m.Y H:i" }}
+                                        </span>
+                                    </p>
+                                    {% if activity.location_info.country %}
+                                        <p class="text-muted mb-0">
+                                            <i class="fas fa-map-marker-alt"></i> 
+                                            {{ activity.location_info.country }}
+                                            {% if activity.location_info.city %}
+                                                , {{ activity.location_info.city }}
+                                            {% endif %}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="mb-2">
+                                        <span class="risk-score risk-{% if activity.risk_score < 30 %}low{% elif activity.risk_score < 70 %}medium{% else %}high{% endif %}">
+                                            Risk: {{ activity.risk_score }}/100
+                                        </span>
+                                    </div>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'security:suspicious_activity_detail' activity.id %}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye"></i> Detay
+                                        </a>
+                                        {% if activity.status != 'resolved' %}
+                                            <button type="button" class="btn btn-outline-success btn-sm" 
+                                                    onclick="updateActivity('{{ activity.id }}', 'resolve')"></button>
+                                    <i class="fas fa-check"></i> Çözüldü
+                                </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- Sayfalama -->
+                {% if page_obj.has_other_pages %}
+                    <nav aria-label="Sayfa navigasyonu">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                        İlk
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                        Önceki
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                        Sonraki
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                        Son
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle"></i> Henüz şüpheli aktivite bulunmuyor.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Aktivite Güncelleme Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aktivite Güncelle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="activityId" name="activity_id">
+                    <input type="hidden" id="actionType" name="action">
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notlar</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="İsteğe bağlı notlar ekleyebilirsiniz..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="submitUpdate()">Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateActivity(activityId, action) {
+    document.getElementById('activityId').value = activityId;
+    document.getElementById('actionType').value = action;
+    
+    let modal = new bootstrap.Modal(document.getElementById('updateModal'));
+    modal.show();
+}
+
+function submitUpdate() {
+    const form = document.getElementById('updateForm');
+    const formData = new FormData(form);
+    const activityId = document.getElementById('activityId').value;
+    
+    fetch(`/security/suspicious-activity/${activityId}/update/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Hata: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Bir hata oluştu.');
+    });
+}
+</script>
+{% endblock %}

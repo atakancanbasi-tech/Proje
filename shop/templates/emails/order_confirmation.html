@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <title>Sipariş Onayı</title>
+</head>
+<body style="font-family:Arial,sans-serif;">
+    <h1>Siparişiniz Onaylandı</h1>
+    <p>Merhaba {{ order.fullname|default:"Müşterimiz" }},</p>
+    <p>Sipariş Numaranız: <strong>{{ order.number|default:"" }}</strong></p>
+    <p>Toplam Tutar: <strong>₺ {{ order.total|default:""|floatformat:2 }}</strong></p>
+    {% if shipping_fee %}<p>Kargo: ₺ {{ shipping_fee|floatformat:2 }}</p>{% endif %}
+    <hr>
+    <p>Teşekkür ederiz. Herhangi bir sorunuz olursa bu e-postayı yanıtlayabilirsiniz.</p>
+</body>
+</html>

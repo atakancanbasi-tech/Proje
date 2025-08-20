@@ -1,0 +1,218 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% load money i18n humanize l10n %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block head_extra %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ product.name|escapejs }}",
+  "image": ["{% if product.image %}{{ product.image.url }}{% endif %}"],
+  "description": "{{ product.description|striptags|truncatechars:160|escapejs }}",
+  "sku": "{{ product.id }}",
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "TRY",
+    "price": "{{ product.price|floatformat:2 }}",
+    "availability": "{% if product.is_in_stock %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "url": "{{ request.scheme }}://{{ request.get_host }}{{ request.path }}"
+  }{% if product.reviews.all.count %},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ product.average_rating|default:4 }}",
+    "reviewCount": "{{ product.reviews.all.count }}"
+  }{% endif %}
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container section">
+  <div class="pdp">
+    <div>
+      <div class="pdp-main">
+        <img id="pdpMainImg" src="{{ product.image.url }}" alt="{{ product.name }}" width="1200" height="900" decoding="async">
+      </div>
+      {% if product.images.all %}
+      <div class="pdp-thumbs mt-2">
+        <img class="is-active" src="{{ product.image.url }}" alt="{{ product.name }}" width="84" height="84" decoding="async">
+        {% for im in product.images.all %}
+          <img src="{{ im.image.url }}" alt="{{ product.name }} görsel {{ forloop.counter }}" width="84" height="84" decoding="async">
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <div>
+      <h1 class="h2">{{ product.name }}</h1>
+      <div class="mb-2 text-muted">{% if product.category %}{{ product.category.name }}{% endif %}</div>
+      <div class="h4 text-success">₺ {{ product.price|floatformat:2|localize }}</div>
+      {% if product.variants.all %}
+      <div class="mt-3">
+        <div class="small text-muted">Renk / Doku</div>
+        <div class="swatches">
+          {% for v in product.variants.all %}
+            <button type="button" class="swatch" title="{{ v.name }}" style="background: {{ v.color_hex|default:'#ccc' }}"></button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      <form method="post" action="{% url 'shop:add_to_cart' product.id %}" class="mt-3">
+        {% csrf_token %}
+        <div class="input-group" style="max-width:220px">
+          <input type="number" class="form-control" name="quantity" value="1" min="1">
+          <button type="submit" class="btn btn-brand">Sepete Ekle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Açıklama / Özellikler -->
+  <section class="mt-4">
+    <h2 class="h5">Ürün Açıklaması</h2>
+    <div class="text-secondary">
+      {{ product.description|default:"Bu ürün, Morenavera koleksiyonunun bir parçasıdır." }}
+    </div>
+  </section>
+
+  {# Birlikte Yakışanlar bölümü #}
+  {% if related_products %}
+    <h5 class="mt-5 mb-3">Birlikte Yakışanlar</h5>
+    <div class="h-scroll">
+      {% for rp in related_products %}
+        <a class="card h-card text-decoration-none" href="{% url 'shop:product_detail' rp.id %}">
+          <img src="{{ rp.image.url }}" class="card-img-top" alt="{{ rp.name }}" width="300" height="200" loading="lazy">
+          <div class="card-body">
+            <div class="text-truncate">{{ rp.name }}</div>
+            <div class="fw-bold">₺ {{ rp.price|floatformat:2|localize }}</div>
+          </div>
+        </a>
+      {% empty %}
+        <div class="text-muted">Benzer ürün bulunamadı.</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {# İlgili ürünler bölümünüz zaten varsa bırakın; yoksa örnek grid: #}
+  {% if related_products %}
+    <section class="mt-4">
+      <h2 class="h5 mb-3">İlgili Ürünler</h2>
+      <div class="grid-products">
+        {% for p in related_products %}
+          {% include "shop/partials/product_card.html" with product=p %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  <!-- Ürün bilgi sekmeleri -->
+  <ul class="nav nav-tabs mt-4" id="pd-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-desc" type="button" role="tab">Açıklama</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-mat" type="button" role="tab">Malzeme & Boyut</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-ship" type="button" role="tab">Kargo & İade</button>
+    </li>
+  </ul>
+  <div class="tab-content p-3 border border-top-0 rounded-bottom">
+    <div class="tab-pane fade show active" id="tab-desc" role="tabpanel">
+      <div class="muted">{{ product.description|default:"Bu ürün el işçiliği beton döküm ile üretilmiştir. Her parça kendine özgü doku ve renge sahiptir." }}</div>
+    </div>
+    <div class="tab-pane fade" id="tab-mat" role="tabpanel">
+      <ul class="mb-0">
+        <li>Malzeme: Beton kompozit</li>
+        <li>Yüzey: Mat koruyucu kaplama</li>
+        <li>Boyutlar: {{ product.width|default:"—" }} × {{ product.height|default:"—" }} × {{ product.depth|default:"—" }} (cm)</li>
+      </ul>
+    </div>
+    <div class="tab-pane fade" id="tab-ship" role="tabpanel">
+      <ul class="mb-0">
+        <li>Gönderim: 24–48 saat içinde kargoya teslim</li>
+        <li>Ücretsiz kargo: 500₺ ve üzeri</li>
+        <li>İade: 14 gün içinde koşulsuz iade</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container section">
+  {% if related_products %}
+  <div class="fbt">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="h6 m-0">Birlikte İyi Gider</h2>
+      <div class="small text-muted">Seç ve sepete ekle</div>
+    </div>
+    <div class="fbt-list">
+      {% for rp in related_products %}
+      <label class="fbt-item">
+        <div class="thumb mb-2">
+          <img src="{{ rp.image.url }}" alt="{{ rp.name }}" width="300" height="225" loading="lazy" decoding="async">
+        </div>
+        <div class="small fw-bold">{{ rp.name }}</div>
+        <div class="small text-success">₺ <span class="fbt-price">{{ rp.price|floatformat:2|localize }}</span></div>
+        <div class="form-check mt-1">
+          <input class="form-check-input fbt-check" type="checkbox" data-price="{{ rp.price|floatformat:2 }}" data-url="{% url 'shop:add_to_cart' rp.id %}">
+          <label class="form-check-label small">Ekle</label>
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+    <div class="fbt-total">
+      <div>Seçili Toplam: ₺ <span id="fbtSum">0.00</span></div>
+      <div>
+        <!-- Basit: seçili ürünleri ayrı ayrı POST eden ardışık submit -->
+        <form id="fbtBatch" method="post">
+          {% csrf_token %}
+          <button type="button" id="fbtAddAll" class="btn btn-brand btn-sm">Seçilileri Sepete Ekle</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% comment %} Sticky Buy Bar {% endcomment %}
+<div class="buybar" id="buybar">
+  <div class="inner">
+    <strong class="price" id="buybar-price">₺ {{ product.price|floatformat:2|localize }}</strong>
+    <div class="spacer"></div>
+    <button type="button" id="buybar-add" class="btn btn-brand btn-lg">Sepete Ekle</button>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+  // PDP thumbs -> main swap
+  (function(){
+    const main=document.getElementById('pdpMainImg');
+    const thumbs=document.querySelectorAll('.pdp-thumbs img'); if(!main||!thumbs.length){return;}
+    thumbs.forEach(t=>{
+      t.addEventListener('click',()=>{ thumbs.forEach(x=>x.classList.remove('is-active')); t.classList.add('is-active'); main.src=t.src; });
+    });
+  })();
+
+  // FBT toplam ve ekleme
+  (function(){
+    const sumEl=document.getElementById('fbtSum');
+    const checks=[...document.querySelectorAll('.fbt-check')];
+    if(!sumEl||!checks.length) return;
+    const fmt=(n)=> (Number(n)||0).toFixed(2);
+    const recalc=()=>{ let s=0; checks.forEach(c=>{ if(c.checked){ s+=Number(c.dataset.price||0) } }); sumEl.textContent=fmt(s); };
+    checks.forEach(c=>c.addEventListener('change',recalc)); recalc();
+    const btn=document.getElementById('fbtAddAll');
+    if(btn){
+      btn.addEventListener('click',async ()=>{
+        for(const c of checks){ if(c.checked){ try{ await fetch(c.dataset.url,{method:'POST',headers:{'X-Requested-With':'XMLHttpRequest','X-CSRFToken':document.querySelector('[name=csrfmiddlewaretoken]').value}});}catch(e){} } }
+        btn.textContent='Eklendi!';
+        setTimeout(()=>btn.textContent='Seçilileri Sepete Ekle',1600);
+      });
+    }
+  })();
+</script>
+<script src="{% static 'js/product_detail.js' %}"></script>
+{% endblock %}
+{% endblock %}

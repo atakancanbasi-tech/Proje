@@ -1,0 +1,215 @@
+{% extends "shop/base.html" %}
+{% load money i18n humanize l10n %}
+{% load img_extras %}
+
+{% block title %}Siparişlerim{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-shopping-bag me-2"></i>Siparişlerim</h2>
+                <a href="{% url 'shop:product_list' %}" class="btn btn-primary">
+                    <i class="fas fa-shopping-cart me-2"></i>Alışverişe Devam
+                </a>
+            </div>
+
+            {% if orders %}
+                <div class="row">
+                    {% for order in orders %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Sipariş #{{ order.id }}</h6>
+                                    {% if order.status == 'pending' %}
+                                        <span class="badge bg-warning">Beklemede</span>
+                                    {% elif order.status == 'processing' %}
+                                        <span class="badge bg-info">İşleniyor</span>
+                                    {% elif order.status == 'shipped' %}
+                                        <span class="badge bg-primary">Kargoda</span>
+                                    {% elif order.status == 'delivered' %}
+                                        <span class="badge bg-success">Teslim Edildi</span>
+                                    {% elif order.status == 'cancelled' %}
+                                        <span class="badge bg-danger">İptal Edildi</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <small class="text-muted">Sipariş Tarihi:</small><br>
+                                        <strong>{{ order.created_at|date:"d.m.Y H:i" }}</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Toplam Tutar:</small><br>
+                                        <strong class="text-success">{{ order.total|money }} TL</strong>
+                                    </div>
+                                    <div class="mb-3">
+                                        <small class="text-muted">Teslimat Adresi:</small><br>
+                                        <span>{{ order.address|truncatechars:50 }}</span>
+                                    </div>
+                                    
+                                    <!-- Sipariş Ürünleri Önizleme -->
+                                    <div class="mb-3">
+                                        <small class="text-muted">Ürünler:</small>
+                                        <div class="mt-1">
+                                            {% for item in order.orderitem_set.all|slice:":3" %}
+                                                <div class="d-flex align-items-center mb-1">
+                                                    {% if item.product.image %}
+                                        <img {% img_default_attrs 300 200 %} src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail">
+                                    {% else %}
+                                                        <div class="me-2 bg-light d-flex align-items-center justify-content-center" 
+                                                             style="width: 30px; height: 30px; border-radius: 3px;">
+                                                            <i class="fas fa-image text-muted" style="font-size: 12px;"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <small>{{ item.product.name|truncatechars:25 }} ({{ item.quantity }})</small>
+                                                </div>
+                                            {% endfor %}
+                                            {% if order.orderitem_set.count > 3 %}
+                                                <small class="text-muted">ve {{ order.orderitem_set.count|add:"-3" }} ürün daha...</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'shop:order_detail' order.id %}" class="btn btn-outline-primary btn-sm flex-fill">
+                                            <i class="fas fa-eye me-1"></i>Detay
+                                        </a>
+                                        {% if order.status == 'delivered' %}
+                                            <span class="btn btn-outline-secondary btn-sm flex-fill disabled">
+                                                <i class="fas fa-truck me-1"></i>Takip
+                                            </span>
+                                        {% elif order.status == 'shipped' %}
+                                            <span class="btn btn-outline-secondary btn-sm flex-fill disabled">
+                                                <i class="fas fa-truck me-1"></i>Takip
+                                            </span>
+                                        {% elif order.status == 'pending' %}
+                                            <button class="btn btn-outline-danger btn-sm flex-fill" 
+                                                    onclick="cancelOrder('{{ order.id }}')"></button>
+                                                <i class="fas fa-times me-1"></i>İptal
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Sayfalama -->
+                {% if is_paginated %}
+                    <nav aria-label="Sipariş sayfalama">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <!-- Boş Durum -->
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-shopping-bag text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">Henüz hiç siparişiniz yok</h4>
+                    <p class="text-muted mb-4">İlk siparişinizi vermek için ürünlerimize göz atın!</p>
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-shopping-cart me-2"></i>Alışverişe Başla
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Sipariş İptal Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Siparişi İptal Et</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bu siparişi iptal etmek istediğinizden emin misiniz?</p>
+                <p class="text-muted small">İptal edilen siparişler geri alınamaz.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="button" class="btn btn-danger" id="confirmCancelBtn">Siparişi İptal Et</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function cancelOrder(orderId) {
+    const modal = new bootstrap.Modal(document.getElementById('cancelOrderModal'));
+    const confirmBtn = document.getElementById('confirmCancelBtn');
+    
+    confirmBtn.onclick = function() {
+        // AJAX ile sipariş iptal işlemi
+        fetch(`/shop/orders/${orderId}/cancel/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Sipariş iptal edilemedi: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Bir hata oluştu: ' + error);
+        });
+        
+        modal.hide();
+    };
+    
+    modal.show();
+}
+</script>
+{% endblock %}

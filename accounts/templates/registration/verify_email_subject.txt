@@ -1,0 +1,1 @@
+{{ site_name|default:"Satış Sitesi" }} — E-posta doğrulama bağlantınız

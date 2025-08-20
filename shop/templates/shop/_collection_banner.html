@@ -1,0 +1,12 @@
+{% load static %}
+<section class="collection-banner" style="--banner-img: url('{% static image|default:'img/banner-wide.svg' %}')">
+  <div class="inner container-wide">
+    <h1>{{ title|default:"Yeni Sezon – Beton Dekor" }}</h1>
+    <p class="lead">{{ subtitle|default:"Biblolar, mumluklar, saksılar… morenavera.com koleksiyonunu keşfedin." }}</p>
+    <div class="cta">
+      <a href="{% url 'shop:product_list' %}" class="btn btn-brand btn-lg">Koleksiyonu İncele</a>
+      <a href="{% url 'shop:product_list' %}?sort=popular" class="btn btn-outline-brand btn-lg">En Popülerler</a>
+    </div>
+  </div>
+</section>
+static tag'ini doğru şekilde kullanacak şekilde düzenle: image değeri verilirse onu, verilmezse default 'img/banner-wide.svg' kullan.

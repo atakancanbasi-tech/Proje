@@ -1,0 +1,25 @@
+{% extends "shop/base.html" %}
+{% block title %}Doğrulama Başarısız{% endblock %}
+{% block content %}
+<div class="container py-4">
+
+<h1 class="h4 mb-3">Doğrulama Başarısız</h1>
+<p class="text-danger">Bağlantı geçersiz ya da süresi dolmuş olabilir.</p>
+<form method="post" action="{% url 'resend_verification' %}" class="row gy-2">
+
+{% csrf_token %}
+
+<div class="col-12 col-md-6">
+ <label class="form-label">E-posta</label>
+
+ <input name="email" type="email" class="form-control" required>
+
+</div>
+<div class="col-12">
+ <button class="btn btn-primary">Doğrulama E-postasını Tekrar Gönder</button>
+
+</div>
+</form>
+
+</div>
+{% endblock %}

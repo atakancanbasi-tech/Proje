@@ -1,0 +1,34 @@
+{# Kategoriler Mega Menü #}
+<ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center nav-mega">
+  <li class="nav-item"><a class="nav-link" href="{% url 'shop:product_list' %}">Ürünler</a></li>
+  <li class="nav-item nav-mega" id="navMega">
+    <a class="nav-link" href="#" id="megaToggle">Kategoriler</a>
+    <div class="mega-panel" id="megaPanel">
+      <div class="container mega-inner">
+        <div class="mega-visual" style="background-image:url('{% static 'img/mega-promo.jpg' %}')">
+          <div class="mega-visual-caption">Yeni Koleksiyon: Adaçayı</div>
+        </div>
+        <div class="mega-col">
+          <h6>Saksılar</h6>
+          <a class="mega-link" href="{% url 'shop:product_list' %}?category=saksilar">Beton Saksılar</a>
+          <a class="mega-link" href="{% url 'shop:product_list' %}?tag=askili">Askılı Modeller</a>
+          <a class="mega-link" href="{% url 'shop:product_list' %}?tag=mini">Mini Saksılar</a>
+        </div>
+        <div class="mega-col">
+          <h6>Mumluklar</h6>
+          <a class="mega-link" href="{% url 'shop:product_list' %}?category=mumluklar">Tekli Mumluk</a>
+          <a class="mega-link" href="{% url 'shop:product_list' %}?tag=ikili">İkili Set</a>
+          <a class="mega-link" href="{% url 'shop:product_list' %}?tag=tray">Tepsili Set</a>
+        </div>
+        <div class="mega-col">
+          <h6>Biblolar</h6>
+          <a class="mega-link" href="{% url 'shop:product_list' %}?category=biblolar">Modern</a>
+          <a class="mega-link" href="{% url 'shop:product_list' %}?tag=heykel">Heykel</a>
+          <a class="mega-link" href="{% url 'shop:product_list' %}?tag=rustik">Rustik</a>
+        </div>
+      </div>
+    </div>
+  </li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'shop:product_list' %}?sort=price_asc">Uygun Fiyat</a></li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'shop:product_list' %}?sort=new">Yeni</a></li>
+</ul>

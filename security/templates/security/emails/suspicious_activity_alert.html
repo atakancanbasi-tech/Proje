@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Şüpheli Aktivite Uyarısı</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #fd7e14; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f8f9fa; }
+        .alert { background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin: 15px 0; border-radius: 5px; color: #856404; }
+        .details { background-color: white; padding: 15px; margin: 15px 0; border-radius: 5px; border: 1px solid #dee2e6; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        .action-required { background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; margin: 15px 0; border-radius: 5px; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚠️ Şüpheli Aktivite Tespit Edildi</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Merhaba {{ user.first_name|default:user.username }},</h2>
+            
+            <div class="alert">
+                <strong>Hesabınızda şüpheli aktivite tespit edildi!</strong>
+            </div>
+            
+            <p>Güvenlik sistemimiz hesabınızda olağandışı bir aktivite tespit etti. Bu aktivite hesabınızın güvenliğini tehdit edebilir.</p>
+            
+            <div class="details">
+                <h3>Aktivite Detayları:</h3>
+                <ul>
+                    <li><strong>Aktivite Türü:</strong> {{ details.activity_type|default:"Bilinmeyen aktivite" }}</li>
+                    <li><strong>IP Adresi:</strong> {{ details.ip_address|default:"Bilinmiyor" }}</li>
+                    <li><strong>Tarih/Saat:</strong> {{ timestamp|date:"d.m.Y H:i" }}</li>
+                    {% if details.user_agent %}
+                    <li><strong>Tarayıcı/Cihaz:</strong> {{ details.user_agent }}</li>
+                    {% endif %}
+                    {% if details.location %}
+                    <li><strong>Konum:</strong> {{ details.location }}</li>
+                    {% endif %}
+                    {% if details.description %}
+                    <li><strong>Açıklama:</strong> {{ details.description }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <div class="action-required">
+                <h3>🚨 Acil Eylem Gerekli</h3>
+                <p>Eğer bu aktivite sizin tarafınızdan gerçekleştirilmediyse, derhal aşağıdaki adımları uygulayın:</p>
+            </div>
+            
+            <h3>Güvenlik Önlemleri:</h3>
+            <ol>
+                <li><strong>Derhal şifrenizi değiştirin</strong> - Güçlü ve benzersiz bir şifre kullanın</li>
+                <li><strong>İki faktörlü kimlik doğrulamayı etkinleştirin</strong> - Ekstra güvenlik katmanı</li>
+                <li><strong>Aktif oturumları kontrol edin</strong> - Tanımadığınız oturumları sonlandırın</li>
+                <li><strong>Hesap aktivitelerinizi gözden geçirin</strong> - Son işlemlerinizi kontrol edin</li>
+                <li><strong>E-posta hesabınızı kontrol edin</strong> - E-posta güvenliğinizi sağlayın</li>
+            </ol>
+            
+            <h3>Bu Aktivite Sizin miydi?</h3>
+            <p>Eğer bu aktivite sizin tarafınızdan gerçekleştirildiyse:</p>
+            <ul>
+                <li>Yeni bir cihaz veya konumdan giriş yapmış olabilirsiniz</li>
+                <li>Farklı bir tarayıcı kullanmış olabilirsiniz</li>
+                <li>VPN veya proxy kullanıyor olabilirsiniz</li>
+            </ul>
+            
+            <div class="alert">
+                <strong>Hatırlatma:</strong> Güvenliğiniz bizim önceliğimizdir. Şüpheli aktiviteleri ciddiye alıyoruz.
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayın.</p>
+            <p>Sorularınız için destek ekibimizle iletişime geçebilirsiniz.</p>
+            <p>© {{ timestamp.year }} Güvenlik Sistemi</p>
+        </div>
+    </div>
+</body>
+</html>

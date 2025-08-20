@@ -1,0 +1,30 @@
+{% extends "shop/base.html" %}
+{% block title %}Hesabım{% endblock %}
+{% block content %}
+<div class="container section">
+  <h1 class="h5 mb-3">Hesabım</h1>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="card-soft p-3">
+        <div class="small text-muted">Siparişlerim</div>
+        <div class="h4 mb-2">Geçmiş Siparişler</div>
+        <a href="{% url 'shop:my_orders' %}" class="btn btn-brand btn-sm">Görüntüle</a>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card-soft p-3">
+        <div class="small text-muted">Adresler</div>
+        <div class="h4 mb-2">Teslimat & Fatura</div>
+        <a href="{% url 'accounts:addresses' %}" class="btn btn-outline-secondary btn-sm">Yönet</a>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card-soft p-3">
+        <div class="small text-muted">Favoriler</div>
+        <div class="h4 mb-2">İstek Listem</div>
+        <a href="{% url 'shop:wishlist' %}" class="btn btn-outline-secondary btn-sm">Aç</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "shop/base.html" %}
+{% block title %}Sayfa bulunamadı (404){% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+  <h1 class="display-6 mb-3">404 — Aradığınız sayfa yok</h1>
+  <p class="text-muted mb-4">Bağlantı hatalı olabilir ya da sayfa taşınmış olabilir.</p>
+  <a class="btn btn-brand" href="{% url 'shop:product_list' %}">Alışverişe dön</a>
+</div>
+{% endblock %}

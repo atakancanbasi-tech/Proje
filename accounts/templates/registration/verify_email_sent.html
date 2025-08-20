@@ -1,0 +1,11 @@
+{% extends "shop/base.html" %}
+{% block title %}Doğrulama E-postası Gönderildi{% endblock %}
+{% block content %}
+<div class="container py-4">
+
+<h1 class="h4 mb-3">E-posta Gönderildi</h1>
+<p class="text-muted">Eğer sistemimizde böyle bir e-posta varsa, doğrulama bağlantısını gönderdik.</p>
+
+<a class="btn btn-secondary" href="{% url 'security:login' %}">Girişe Dön</a>
+</div>
+{% endblock %}

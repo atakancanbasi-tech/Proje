@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Güvenlik Uyarısı</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+        .title {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        .alert-container {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+        .alert-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .alert-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .alert-message {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .content {
+            margin: 25px 0;
+            line-height: 1.8;
+        }
+        .incident-details {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #dc3545;
+        }
+        .details-title {
+            color: #721c24;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .details-list {
+            margin: 0;
+            list-style: none;
+            padding: 0;
+        }
+        .details-list li {
+            margin-bottom: 12px;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            border-left: 3px solid #dc3545;
+        }
+        .details-label {
+            font-weight: bold;
+            color: #721c24;
+            display: inline-block;
+            width: 140px;
+        }
+        .details-value {
+            color: #495057;
+        }
+        .action-required {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .action-title {
+            color: #856404;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .action-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .action-list li {
+            margin-bottom: 10px;
+            color: #856404;
+            font-weight: 500;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 15px 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(220, 53, 69, 0.3);
+        }
+        .btn:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            box-shadow: 0 2px 10px rgba(108, 117, 125, 0.3);
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+        }
+        .security-tips {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #17a2b8;
+        }
+        .tips-title {
+            color: #0c5460;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .tips-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .tips-list li {
+            margin-bottom: 8px;
+            color: #0c5460;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .contact-info {
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        .urgent-notice {
+            background-color: #f8d7da;
+            border: 2px solid #dc3545;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .urgent-text {
+            color: #721c24;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+            }
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                margin: 10px 5px;
+                display: block;
+                text-align: center;
+            }
+            .details-label {
+                width: 100px;
+                font-size: 14px;
+            }
+            .alert-icon {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚨 {{ site_name|default:"Güvenli Alışveriş" }}</div>
+            <h1 class="title">Güvenlik Uyarısı</h1>
+        </div>
+
+        <div class="alert-container">
+            <span class="alert-icon">⚠️</span>
+            <div class="alert-title">Hesabınızda Şüpheli Aktivite Tespit Edildi</div>
+            <div class="alert-message">Güvenliğiniz için derhal harekete geçin</div>
+        </div>
+
+        <div class="content">
+            <p>Sayın <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+            
+            <p>Hesabınızda olağandışı bir aktivite tespit ettik. Güvenliğiniz için bu durumu derhal size bildiriyoruz.</p>
+        </div>
+
+        <div class="incident-details">
+            <div class="details-title">🔍 Tespit Edilen Aktivite:</div>
+            <ul class="details-list">
+                <li>
+                    <span class="details-label">Aktivite Türü:</span>
+                    <span class="details-value">{{ alert_type_display }}</span>
+                </li>
+                <li>
+                    <span class="details-label">Tarih/Saat:</span>
+                    <span class="details-value">{{ timestamp|date:"d.m.Y H:i" }}</span>
+                </li>
+                <li>
+                    <span class="details-label">IP Adresi:</span>
+                    <span class="details-value">{{ ip_address }}</span>
+                </li>
+                <li>
+                    <span class="details-label">Konum:</span>
+                    <span class="details-value">{{ location|default:"Bilinmiyor" }}</span>
+                </li>
+                <li>
+                    <span class="details-label">Cihaz/Tarayıcı:</span>
+                    <span class="details-value">{{ user_agent|truncatechars:60 }}</span>
+                </li>
+                <li>
+                    <span class="details-label">Risk Seviyesi:</span>
+                    <span class="details-value">{{ risk_level|default:"Yüksek" }}</span>
+                </li>
+            </ul>
+        </div>
+
+        {% if alert_type == 'failed_login' %}
+        <div class="urgent-notice">
+            <div class="urgent-text">
+                🔒 Hesabınıza {{ failed_attempts }} kez başarısız giriş denemesi yapıldı!
+            </div>
+        </div>
+        {% elif alert_type == 'suspicious_location' %}
+        <div class="urgent-notice">
+            <div class="urgent-text">
+                🌍 Hesabınıza farklı bir konumdan erişim sağlandı!
+            </div>
+        </div>
+        {% elif alert_type == 'account_locked' %}
+        <div class="urgent-notice">
+            <div class="urgent-text">
+                🔐 Güvenlik nedeniyle hesabınız geçici olarak kilitlendi!
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="action-required">
+            <div class="action-title">⚡ Derhal Yapmanız Gerekenler:</div>
+            <ol class="action-list">
+                <li>Eğer bu aktivite size ait değilse, derhal şifrenizi değiştirin</li>
+                <li>Hesabınızı kontrol edin ve şüpheli işlemler olup olmadığını inceleyin</li>
+                <li>İki faktörlü kimlik doğrulamayı etkinleştirin</li>
+                <li>Güvenlik ayarlarınızı gözden geçirin</li>
+                <li>Şüpheli e-postalar veya mesajlar aldıysanız bunları bildirin</li>
+            </ol>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ change_password_url }}" class="btn">🔑 Şifremi Değiştir</a>
+            <a href="{{ security_settings_url }}" class="btn btn-secondary">⚙️ Güvenlik Ayarları</a>
+        </div>
+
+        <div class="security-tips">
+            <div class="tips-title">🛡️ Güvenlik İpuçları:</div>
+            <ul class="tips-list">
+                <li>Güçlü ve benzersiz şifreler kullanın</li>
+                <li>Şifrelerinizi düzenli olarak değiştirin</li>
+                <li>İki faktörlü kimlik doğrulamayı etkinleştirin</li>
+                <li>Şüpheli e-postalar ve bağlantılara tıklamayın</li>
+                <li>Güvenilir ağlarda internete bağlanın</li>
+                <li>Hesap aktivitelerinizi düzenli kontrol edin</li>
+                <li>Cihazlarınızı güncel tutun</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <p><strong>Bu aktivite size aitse:</strong> Herhangi bir işlem yapmanıza gerek yoktur. Ancak gelecekte daha güvenli olmak için yukarıdaki önerileri dikkate alabilirsiniz.</p>
+            
+            <p><strong>Bu aktivite size ait değilse:</strong> Derhal şifrenizi değiştirin ve bizimle iletişime geçin. Hesabınızın güvenliğini sağlamak için gerekli tüm önlemleri alacağız.</p>
+        </div>
+
+        <div class="footer">
+            <p><strong>{{ site_name|default:"Güvenli Alışveriş" }} Güvenlik Ekibi</strong></p>
+            <p>Bu e-posta otomatik güvenlik sistemi tarafından gönderilmiştir.</p>
+            
+            <div class="contact-info">
+                <p>🚨 <strong>Acil Durum:</strong> security@example.com | 📞 +90 (212) 123 45 67</p>
+                <p>📧 Destek: support@example.com | 🌐 Web: www.example.com</p>
+                <p>⏰ 7/24 Güvenlik Destek Hattı</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

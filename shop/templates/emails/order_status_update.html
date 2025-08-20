@@ -1,0 +1,205 @@
+{% load shop_extras i18n humanize l10n %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sipariş Durumu Güncellendi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+        }
+        .status-update {
+            background-color: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+            text-align: center;
+        }
+        .status-change {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+        }
+        .status-pending { background-color: #ffc107; }
+        .status-processing { background-color: #17a2b8; }
+        .status-shipped { background-color: #fd7e14; }
+        .status-delivered { background-color: #28a745; }
+        .status-cancelled { background-color: #dc3545; }
+        .arrow {
+            font-size: 20px;
+            color: #007bff;
+        }
+        .order-info {
+            background-color: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .product-table th,
+        .product-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .product-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+            text-align: right;
+            margin-top: 15px;
+        }
+        .footer {
+            background-color: #6c757d;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 0 0 5px 5px;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .message-box {
+            background-color: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📦 Sipariş Durumu Güncellendi</h1>
+        <p>Merhaba {{ order.fullname }}!</p>
+    </div>
+
+    <div class="content">
+        <div class="status-update">
+            <h2>🔄 Durum Değişikliği</h2>
+            <div class="status-change">
+                <span class="status-badge status-{{ old_status }}">{{ old_status_display }}</span>
+                <span class="arrow">→</span>
+                <span class="status-badge status-{{ new_status }}">{{ new_status_display }}</span>
+            </div>
+            <div class="message-box">
+                <strong>{{ status_message }}</strong>
+            </div>
+        </div>
+
+        <div class="order-info">
+            <h3>📋 Sipariş Bilgileri</h3>
+            <p><strong>Sipariş No:</strong> #{{ order.id }}</p>
+            <p><strong>Sipariş Tarihi:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
+            <p><strong>Güncel Durum:</strong> <span class="status-badge status-{{ new_status }}">{{ new_status_display }}</span></p>
+        </div>
+
+        <div class="order-info">
+            <h3>🚚 Teslimat Bilgileri</h3>
+            <p><strong>Ad Soyad:</strong> {{ order.fullname }}</p>
+            <p><strong>E-posta:</strong> {{ order.email }}</p>
+            {% if order.phone %}
+            <p><strong>Telefon:</strong> {{ order.phone }}</p>
+            {% endif %}
+            <p><strong>Adres:</strong> {{ order.address }}</p>
+            <p><strong>Şehir:</strong> {{ order.city }}</p>
+            <p><strong>Posta Kodu:</strong> {{ order.postal_code }}</p>
+        </div>
+
+        <div class="order-info">
+            <h3>📦 Sipariş Ürünleri</h3>
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>Ürün</th>
+                        <th>Adet</th>
+                        <th>Birim Fiyat</th>
+                        <th>Toplam</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₺ {{ item.price|localize }}</td>
+                        <td>₺ {{ item.price|mul:item.quantity|localize }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="total">
+                Genel Toplam: {{ order.total|money }} TL
+            </div>
+        </div>
+
+        {% if new_status == 'shipped' %}
+        <div class="message-box">
+            <p><strong>🚛 Kargo Bilgisi:</strong> Siparişiniz kargoya verilmiştir. Kargo takip numaranız en kısa sürede size bildirilecektir.</p>
+        </div>
+        {% elif new_status == 'paid' %}
+        <div class="message-box">
+            <p><strong>💳 Ödeme Onayı:</strong> Ödemeniz başarıyla alınmıştır. Siparişiniz hazırlanmaya başlanacaktır.</p>
+        </div>
+        {% elif new_status == 'received' %}
+        <div class="message-box">
+            <p><strong>📋 Sipariş Alındı:</strong> Siparişiniz başarıyla alınmıştır ve işleme alınmayı beklemektedir.</p>
+        </div>
+        {% elif new_status == 'cancelled' %}
+        <div class="message-box">
+            <p><strong>❌ İptal Edildi:</strong> Siparişiniz iptal edilmiştir. Ödeme yaptıysanız, iade işlemi 3-5 iş günü içinde hesabınıza yansıyacaktır.</p>
+        </div>
+        {% endif %}
+
+        <p>Herhangi bir sorunuz olursa bizimle iletişime geçmekten çekinmeyin.</p>
+    </div>
+
+    <div class="footer">
+        <p>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayın.</p>
+        <p>© 2025 Satış Sitesi. Tüm hakları saklıdır.</p>
+    </div>
+</body>
+</html>

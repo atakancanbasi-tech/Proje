@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sipariş Onayı</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .order-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .order-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .order-items th,
+        .order-items td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .order-items th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .totals {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .total-final {
+            font-weight: bold;
+            font-size: 1.1em;
+            border-top: 2px solid #333;
+            padding-top: 8px;
+        }
+        .address {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Sipariş Onayı</h1>
+        <p>Siparişiniz başarıyla alınmıştır!</p>
+    </div>
+
+    <div class="order-info">
+        <h3>Sipariş Bilgileri</h3>
+        <p><strong>Sipariş No:</strong> {{ order.number }}</p>
+        <p><strong>Sipariş Tarihi:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
+        <p><strong>Müşteri:</strong> {{ order.fullname }}</p>
+        <p><strong>E-posta:</strong> {{ order.email }}</p>
+    </div>
+
+    <h3>Sipariş Detayları</h3>
+    <table class="order-items">
+        <thead>
+            <tr>
+                <th>Ürün</th>
+                <th>Adet</th>
+                <th>Birim Fiyat</th>
+                <th>Toplam</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order_items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.unit_price|floatformat:2 }} TL</td>
+                <td>{{ item.line_total|floatformat:2 }} TL</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <h3>Sipariş Özeti</h3>
+        <div class="totals-row">
+            <span>Ara Toplam:</span>
+            <span>{{ subtotal|floatformat:2 }} TL</span>
+        </div>
+        <div class="totals-row">
+            <span>Kargo ({{ shipping_method_display }}):</span>
+            <span>{% if shipping_fee == 0 %}ÜCRETSİZ{% else %}{{ shipping_fee|floatformat:2 }} TL{% endif %}</span>
+        </div>
+        <div class="totals-row total-final">
+            <span>Genel Toplam:</span>
+            <span>{{ total|floatformat:2 }} TL</span>
+        </div>
+    </div>
+
+    <div class="address">
+        <h3>Teslimat Adresi</h3>
+        <p><strong>{{ order.fullname }}</strong></p>
+        <p>{{ order.address }}</p>
+        <p>{{ order.district }}, {{ order.city }} {{ order.postal_code }}</p>
+        <p><strong>Telefon:</strong> {{ order.phone }}</p>
+    </div>
+
+    <div style="text-align: center;">
+        <a href="#" class="btn">Siparişini Gör</a>
+    </div>
+
+    <div class="footer">
+        <p>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayınız.</p>
+        <p>Herhangi bir sorunuz varsa, müşteri hizmetlerimizle iletişime geçebilirsiniz.</p>
+        <p>&copy; 2024 Satış Sitesi. Tüm hakları saklıdır.</p>
+    </div>
+</body>
+</html>
